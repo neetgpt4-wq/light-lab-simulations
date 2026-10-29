@@ -1,0 +1,1654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Light Lab: Act 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#060a14; --ink2:#0b1224; --panel:#101a33; --panel2:#142142; --line:#25365f;
+  --tx:#eaf1ff; --mut:#9db0d6; --ok:#5ee79a; --bad:#ff6b7a; --warn:#ffd23d;
+  --c:#38b6ff; /* per-activity spectrum colour, overridden inline */
+  --r1:14px; --r2:8px;
+  --f:'Lexend','Segoe UI',system-ui,-apple-system,Roboto,Arial,sans-serif;
+  --fh:'Noto Sans Devanagari','Nirmala UI','Mangal',sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--ink);color:var(--tx);font-family:var(--f);font-size:16px;line-height:1.55;
+  background-image:radial-gradient(1200px 600px at 85% -10%,rgba(122,124,255,.16),transparent 60%),radial-gradient(900px 500px at -10% 10%,rgba(56,225,255,.10),transparent 60%);
+  min-height:100vh}
+body.presenter{font-size:19px}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--warn);outline-offset:2px;border-radius:6px}
+.hi{font-family:var(--fh);color:#cfe3ff;background:rgba(255,200,87,.08);border-left:3px solid var(--warn);padding:8px 12px;margin:8px 0;border-radius:0 8px 8px 0;font-size:.95em;line-height:1.7}
+.hi:empty{display:none}
+.hide{display:none!important}
+
+/* ---------- header ---------- */
+#top{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:14px;padding:10px 18px;padding-top:max(10px,env(safe-area-inset-top));
+  background:rgba(6,10,20,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.05rem;cursor:pointer;background:none;border:0;padding:0}
+.logo svg{width:34px;height:34px;flex:none}
+.logo small{display:block;font-weight:400;color:var(--mut);font-size:.72rem;line-height:1.1}
+.prog{flex:1;max-width:420px;margin-left:auto}
+.prog .bar{height:10px;border-radius:99px;background:#17244a;overflow:hidden;border:1px solid var(--line)}
+.prog .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff4d4d,#ff8a3d,#ffd23d,#7be04a,#2fd6b0,#38b6ff,#7a7cff,#c15bff);transition:width .5s}
+.prog span{font-size:.75rem;color:var(--mut)}
+.tbtn{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 12px;cursor:pointer;min-height:40px;font-size:.85rem;white-space:nowrap}
+.tbtn:hover{background:var(--panel2)}
+.tbtn[aria-pressed=true]{background:#3a2d0b;border-color:var(--warn);color:var(--warn)}
+
+/* ---------- layout ---------- */
+.wrap{max-width:1440px;margin:0 auto;padding:22px 18px 80px}
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--c);color:#04101f;border:0;border-radius:12px;padding:11px 18px;font-weight:600;cursor:pointer;min-height:44px;transition:transform .12s,filter .12s}
+.btn:hover{filter:brightness(1.1)} .btn:active{transform:scale(.97)}
+.btn.ghost{background:transparent;color:var(--tx);border:1px solid var(--line)}
+.btn.ghost:hover{background:var(--panel)}
+.btn.sm{padding:6px 12px;min-height:36px;font-size:.85rem}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.card{background:linear-gradient(180deg,var(--panel),var(--ink2));border:1px solid var(--line);border-radius:var(--r1)}
+
+/* ---------- dashboard ---------- */
+.hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:30px;align-items:center;padding:28px 0 10px}
+.hero h1{font-size:clamp(2rem,4.6vw,3.6rem);line-height:1.05;margin:0 0 12px;letter-spacing:-.02em}
+.hero p{color:var(--mut);max-width:58ch;margin:0 0 18px;font-size:1.05rem}
+.hero .cta{display:flex;gap:10px;flex-wrap:wrap}
+#prism{width:100%;height:auto;max-height:300px;border-radius:var(--r1);background:#050813;border:1px solid var(--line);touch-action:none;cursor:crosshair}
+.prismcap{font-size:.8rem;color:var(--mut);margin-top:6px}
+.beam{position:relative;margin:26px 0 0;padding-left:46px}
+.beam:before{content:"";position:absolute;left:19px;top:10px;bottom:10px;width:4px;border-radius:4px;background:linear-gradient(#ff4d4d,#ff8a3d,#ffd23d,#7be04a,#2fd6b0,#38b6ff,#7a7cff,#c15bff);box-shadow:0 0 18px rgba(122,124,255,.5)}
+.st{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 18px;align-items:center;padding:16px 18px;margin-bottom:12px;border:1px solid var(--line);border-radius:var(--r1);background:linear-gradient(90deg,color-mix(in srgb,var(--c) 11%,var(--panel)),var(--ink2) 70%);cursor:pointer;transition:border-color .15s,transform .15s}
+.st:hover{border-color:var(--c);transform:translateX(4px)}
+.st .node{position:absolute;left:-36px;top:50%;translate:0 -50%;width:34px;height:34px;border-radius:50%;background:var(--c);color:#04101f;font-weight:700;display:grid;place-items:center;box-shadow:0 0 0 5px var(--ink),0 0 16px var(--c)}
+.st h3{margin:0;font-size:1.15rem}
+.st h3 small{font-family:var(--fh);color:var(--mut);font-weight:400;margin-left:8px;font-size:.85em}
+.st p{margin:3px 0 0;color:var(--mut);font-size:.9rem;max-width:80ch}
+.st .meta{display:flex;align-items:center;gap:12px}
+.pips{display:flex;gap:5px}
+.pips i{width:12px;height:12px;border-radius:50%;border:2px solid var(--line);display:block}
+.pips i.on{background:var(--c);border-color:var(--c);box-shadow:0 0 8px var(--c)}
+.mins{font-size:.78rem;color:var(--mut);white-space:nowrap}
+.panelrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;margin-top:26px}
+.panelrow .card{padding:18px}
+.panelrow h2{margin:0 0 8px;font-size:1.1rem}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--mut);font-weight:500}
+.final{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+/* ---------- activity ---------- */
+.acthead{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.acthead h1{margin:0;font-size:clamp(1.4rem,2.6vw,2.1rem);line-height:1.15}
+.acthead h1 small{font-family:var(--fh);font-weight:400;color:var(--mut);font-size:.6em;margin-left:8px}
+.anum{background:var(--c);color:#04101f;font-weight:700;border-radius:99px;padding:3px 12px;font-size:.85rem}
+.nav2{margin-left:auto;display:flex;gap:8px}
+.lab{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(330px,1fr);gap:18px;align-items:start}
+@media(max-width:1020px){.lab{grid-template-columns:minmax(0,1fr)}.hero{grid-template-columns:minmax(0,1fr)}}
+.lab>section,.lab>aside{min-width:0}
+.stage{position:relative;border-radius:var(--r1);border:1px solid var(--line);background:#050813;overflow:hidden;aspect-ratio:16/10;min-height:300px}
+.stage canvas{width:100%;height:100%;display:block;touch-action:none}
+.stage2{margin-top:12px;aspect-ratio:16/9}
+.msg{position:absolute;left:50%;bottom:14px;translate:-50% 20px;opacity:0;pointer-events:none;background:rgba(10,18,40,.95);border:1px solid var(--c);color:var(--tx);padding:10px 18px;border-radius:99px;font-weight:600;max-width:92%;text-align:center;transition:.3s;z-index:3}
+.msg.show{opacity:1;translate:-50% 0}
+.msg.good{border-color:var(--ok);color:var(--ok)} .msg.bad{border-color:var(--bad);color:var(--bad)}
+.fallback{display:grid;place-items:center;height:100%;padding:20px;text-align:center;color:var(--mut)}
+.readouts{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.chip{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 12px;font-size:.85rem}
+.chip b{color:var(--c);font-weight:600}
+.chip.ok b{color:var(--ok)} .chip.bad b{color:var(--bad)}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px 18px;padding:14px;border:1px solid var(--line);border-radius:var(--r1);background:var(--ink2)}
+.ctl{display:flex;flex-direction:column;gap:6px;min-width:0}
+.ctl.wide{grid-column:1/-1}
+.ctl label{display:flex;justify-content:space-between;gap:10px;font-size:.88rem;color:var(--mut)}
+.ctl label b{color:var(--tx);font-weight:600;white-space:nowrap}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:30px;background:transparent;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:8px;border-radius:8px;background:linear-gradient(90deg,var(--line),var(--c))}
+input[type=range]::-moz-range-track{height:8px;border-radius:8px;background:linear-gradient(90deg,var(--line),var(--c))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:#fff;border:4px solid var(--c);margin-top:-9px;box-shadow:0 2px 8px #0008}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#fff;border:4px solid var(--c)}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{flex:1 1 auto;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 12px;cursor:pointer;min-height:42px;font-size:.88rem}
+.seg button.on{background:var(--c);color:#04101f;border-color:var(--c);font-weight:600}
+.chk{display:flex;align-items:center;gap:10px;cursor:pointer;min-height:42px;font-size:.9rem}
+.chk input{width:22px;height:22px;accent-color:var(--c)}
+.txt{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 12px;min-height:42px;width:100%;font-weight:600;letter-spacing:.05em}
+.cbtn{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:9px 14px;cursor:pointer;min-height:42px;font-size:.88rem}
+.cbtn:hover{border-color:var(--c)}
+.cbtn.reset{border-style:dashed}
+.btnrow{flex-direction:row;flex-wrap:wrap}
+
+/* ---------- guide panel ---------- */
+.guide{position:sticky;top:76px;max-height:calc(100vh - 92px);display:flex;flex-direction:column;overflow:hidden}
+@media(max-width:1020px){.guide{position:static;max-height:none}}
+.tabs{display:flex;border-bottom:1px solid var(--line);overflow-x:auto;flex:none}
+.tabs button{flex:1;background:none;border:0;border-bottom:3px solid transparent;padding:12px 8px;cursor:pointer;color:var(--mut);font-size:.82rem;white-space:nowrap;min-height:48px}
+.tabs button.on{color:var(--tx);border-color:var(--c);background:color-mix(in srgb,var(--c) 10%,transparent)}
+.tabs button .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-left:5px;vertical-align:middle}
+.tabbody{padding:16px 18px 22px;overflow-y:auto;flex:1}
+.tabbody h4{margin:16px 0 6px;font-size:.95rem;color:var(--c)}
+.tabbody h4:first-child{margin-top:0}
+.tabbody p{margin:6px 0}
+.tabbody ul{margin:6px 0;padding-left:20px}
+.tabbody li{margin:4px 0}
+.steps{list-style:none;padding:0!important;margin:8px 0}
+.steps li{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:10px;margin:6px 0;background:var(--ink2)}
+.steps li.done{border-color:var(--ok);background:rgba(94,231,154,.07)}
+.steps input{width:22px;height:22px;accent-color:var(--ok)}
+.note{border:1px dashed var(--warn);border-radius:10px;padding:10px 12px;margin:10px 0;font-size:.9rem;background:rgba(255,210,61,.05)}
+.opts{display:grid;gap:8px;margin:10px 0}
+.opt{display:flex;gap:10px;align-items:center;text-align:left;background:var(--ink2);border:1px solid var(--line);border-radius:10px;padding:11px 14px;cursor:pointer;min-height:48px}
+.opt:hover:not([disabled]){border-color:var(--c)}
+.opt.sel{border-color:var(--c);background:color-mix(in srgb,var(--c) 14%,var(--ink2))}
+.opt.right{border-color:var(--ok);background:rgba(94,231,154,.12)}
+.opt.wrong{border-color:var(--bad);background:rgba(255,107,122,.1);opacity:.75}
+.fb{margin:10px 0;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--ink2)}
+.fb.good{border-color:var(--ok)} .fb.bad{border-color:var(--bad)}
+.take{font-size:1.15rem;line-height:1.5;padding:16px;border-radius:12px;border:1px solid var(--c);background:color-mix(in srgb,var(--c) 10%,var(--ink2))}
+.tick{display:grid;grid-template-columns:auto 1fr;gap:8px;margin:12px 0}
+.tick span{display:contents}
+.formula{font-size:1.1rem;padding:8px 14px;border-radius:10px;background:var(--ink2);border:1px solid var(--line);display:inline-block;margin:4px 6px 4px 0}
+
+/* ---------- final quiz ---------- */
+.quizbox{max-width:760px;margin:20px auto;padding:24px}
+.quizbox h2{margin-top:0}
+.score{font-size:3rem;font-weight:700;color:var(--c)}
+#toast{position:fixed;left:50%;bottom:22px;translate:-50% 30px;opacity:0;background:var(--panel2);border:1px solid var(--ok);padding:10px 18px;border-radius:99px;z-index:90;transition:.35s;pointer-events:none}
+#toast.show{opacity:1;translate:-50% 0}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+@media(max-width:640px){.stage{aspect-ratio:auto;height:min(82vw,400px);min-height:240px}.stage2{height:min(70vw,320px)}.acthead h1{font-size:1.3rem}#top{flex-wrap:wrap}.prog{order:5;flex-basis:100%;max-width:none}.st{grid-template-columns:1fr}.beam{padding-left:40px}}
+</style>
+</head>
+<body>
+<header id="top">
+  <button class="logo" id="logoBtn" aria-label="Go to dashboard">
+    <svg viewBox="0 0 40 40" aria-hidden="true"><polygon points="20,5 36,33 4,33" fill="none" stroke="#eaf1ff" stroke-width="2.4" stroke-linejoin="round"/><line x1="1" y1="22" x2="14" y2="21" stroke="#fff" stroke-width="2.4"/><line x1="25" y1="20" x2="39" y2="12" stroke="#ff4d4d" stroke-width="2"/><line x1="26" y1="23" x2="39" y2="22" stroke="#7be04a" stroke-width="2"/><line x1="26" y1="26" x2="39" y2="32" stroke="#7a7cff" stroke-width="2"/></svg>
+    <span>Light Lab<small>Physics Workshop, Classes 6 to 10</small></span>
+  </button>
+  <div class="prog" aria-label="Overall progress"><div class="bar"><i id="pbar"></i></div><span id="ptxt">0% complete</span></div>
+  <button class="tbtn" id="presBtn" aria-pressed="false" title="Larger text for projectors">Projector mode</button>
+</header>
+<main id="view" class="wrap"></main>
+<div id="toast" role="status"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+'use strict';
+const ONLY = 2;
+/* =====================================================================
+   LIGHT LAB  |  Core utilities
+   ===================================================================== */
+const TAU = Math.PI * 2, D2R = Math.PI / 180, R2D = 180 / Math.PI;
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const $ = (s, e = document) => e.querySelector(s);
+const $$ = (s, e = document) => [...e.querySelectorAll(s)];
+function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+const FONT = '"Lexend","Segoe UI",system-ui,Arial,sans-serif';
+
+/* ---------- canvas drawing helpers ---------- */
+function rr(g, x, y, w, h, r) {
+  r = Math.min(r, w / 2, h / 2);
+  g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r);
+  g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath();
+}
+function line(g, x1, y1, x2, y2, col, w, dash, alpha) {
+  g.save(); g.strokeStyle = col; g.lineWidth = w || 2; g.globalAlpha = alpha == null ? 1 : alpha;
+  g.setLineDash(dash || []); g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke(); g.restore();
+}
+function glow(g, x1, y1, x2, y2, col, w, alpha) {
+  g.save(); g.lineCap = 'round'; g.globalAlpha = (alpha == null ? 1 : alpha);
+  g.strokeStyle = col; g.shadowColor = col; g.shadowBlur = 14; g.lineWidth = w || 3;
+  g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke();
+  g.shadowBlur = 0; g.strokeStyle = '#fff'; g.globalAlpha *= .55; g.lineWidth = Math.max(1, (w || 3) * .35);
+  g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke(); g.restore();
+}
+function dot(g, x, y, r, col, stroke) {
+  g.save(); g.fillStyle = col; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
+  if (stroke) { g.strokeStyle = stroke; g.lineWidth = 2; g.stroke(); } g.restore();
+}
+function text(g, s, x, y, col, size, align, weight, base) {
+  g.save(); g.fillStyle = col || '#eaf1ff'; g.font = `${weight || 500} ${size || 14}px ${FONT}`;
+  g.textAlign = align || 'left'; g.textBaseline = base || 'alphabetic'; g.fillText(s, x, y); g.restore();
+}
+function arrowHead(g, x, y, ang, size, col) {
+  g.save(); g.translate(x, y); g.rotate(ang); g.fillStyle = col; g.beginPath();
+  g.moveTo(0, 0); g.lineTo(-size, -size * .45); g.lineTo(-size, size * .45); g.closePath(); g.fill(); g.restore();
+}
+function arrow(g, x1, y1, x2, y2, col, w, dash) {
+  line(g, x1, y1, x2, y2, col, w || 2.5, dash);
+  arrowHead(g, x2, y2, Math.atan2(y2 - y1, x2 - x1), 9 + (w || 2.5), col);
+}
+function angleArc(g, cx, cy, r, a1, a2, col, label, lblCol) {
+  let d = a2 - a1; while (d > Math.PI) d -= TAU; while (d < -Math.PI) d += TAU;
+  g.save(); g.strokeStyle = col; g.lineWidth = 2.5; g.beginPath(); g.arc(cx, cy, r, a1, a1 + d, d < 0); g.stroke();
+  if (label) { const m = a1 + d / 2; text(g, label, cx + Math.cos(m) * (r + 18), cy + Math.sin(m) * (r + 18), lblCol || col, 14, 'center', 600, 'middle'); }
+  g.restore();
+}
+function gridBg(g, W, H, step, col) {
+  g.save(); g.strokeStyle = col || 'rgba(120,160,255,.07)'; g.lineWidth = 1; g.beginPath();
+  for (let x = 0; x < W; x += step) { g.moveTo(x + .5, 0); g.lineTo(x + .5, H); }
+  for (let y = 0; y < H; y += step) { g.moveTo(0, y + .5); g.lineTo(W, y + .5); }
+  g.stroke(); g.restore();
+}
+function mulberry(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const fix = (v, d = 1) => (+v).toFixed(d);
+
+/* ---------- persistence (progress tracking) ---------- */
+const Store = {
+  d: { done: {}, final: null, lang: 'en', pres: false },
+  load() { try { const s = localStorage.getItem('lightlab.v1'); if (s) Object.assign(this.d, JSON.parse(s)); } catch (e) { } },
+  save() { try { localStorage.setItem('lightlab.v1', JSON.stringify(this.d)); } catch (e) { } },
+  get(id) { return this.d.done[id] || (this.d.done[id] = { visit: 0, predict: 0, quiz: 0, task: 0 }); },
+  pct(id) { const o = this.get(id); return (o.visit + o.predict + o.quiz + o.task) / 4; },
+  overall() { let s = 0; ACTS.forEach(a => s += this.pct(a.id)); return Math.round(100 * (s / ACTS.length * .9 + (this.d.final != null && this.d.final >= 6 ? .1 : 0))); },
+  mark(id, k) { const o = this.get(id); if (!o[k]) { o[k] = 1; this.save(); updateProgress(); toast(({ predict: 'Prediction logged', quiz: 'Quiz answered correctly', task: 'Experiment steps complete' })[k] || 'Saved'); } },
+  reset() { this.d.done = {}; this.d.final = null; this.save(); updateProgress(); }
+};
+function updateProgress() { const p = Store.overall(); $('#pbar').style.width = p + '%'; $('#ptxt').textContent = p + '% complete'; }
+let toastT; function toast(s) { const t = $('#toast'); t.textContent = '✓ ' + s; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 1800); }
+const isHi = () => false;
+const bi = (en, hi) => `<div>${en}</div>` + (isHi() && hi ? `<div class="hi" lang="hi">${hi}</div>` : '');
+
+/* =====================================================================
+   SIM FRAMEWORK
+   A "def" describes controls + draw(); the framework builds the UI,
+   handles resizing, pointer dragging, readouts, reset and messages.
+   ===================================================================== */
+function mountSim(def, ui) {
+  const c = document.createElement('canvas'); ui.stage.appendChild(c);
+  const g = c.getContext('2d');
+  const env = { def, c, g, ui, P: {}, S: {}, W: 300, H: 200, dpr: 1, t: 0, dead: false, ctl: {}, rows: [], _rd: '' };
+  def.controls.forEach(s => { if (s.id) env.P[s.id] = s.val; });
+
+  env.say = (txt, kind) => { const m = ui.msg; m.textContent = txt; m.className = 'msg show ' + (kind || ''); clearTimeout(env._mt); env._mt = setTimeout(() => m.classList.remove('show'), 3400); };
+  env.goal = () => { if (ui.onGoal) ui.onGoal(); };
+  env.refresh = () => { def.controls.forEach((s, i) => { const r = env.rows[i]; if (r) r.style.display = (s.when && !s.when(env.P)) ? 'none' : ''; }); };
+  env.set = (id, v, fromUI) => {
+    env.P[id] = v; const k = env.ctl[id]; if (k && !fromUI) k.set(v);
+    if (def.onChange) def.onChange(env, id, v);
+    env.refresh();
+  };
+  env.setMany = o => Object.keys(o).forEach(k => env.set(k, o[k]));
+
+  /* ---- controls ---- */
+  def.controls.forEach((s, i) => {
+    const row = el('div', 'ctl' + (s.wide ? ' wide' : ''));
+    if (s.type === 'range') {
+      row.innerHTML = `<label><span>${s.label}</span><b></b></label><input type="range" min="${s.min}" max="${s.max}" step="${s.step}" value="${s.val}" aria-label="${s.label}">`;
+      const inp = $('input', row), b = $('b', row);
+      const f = v => (s.fmt ? s.fmt(v) : fix(v, s.dec != null ? s.dec : (s.step < 1 ? 1 : 0))) + (s.unit || '');
+      b.textContent = f(s.val);
+      inp.addEventListener('input', () => { const v = parseFloat(inp.value); b.textContent = f(v); env.set(s.id, v, true); });
+      env.ctl[s.id] = { set(v) { inp.value = v; b.textContent = f(v); } };
+    } else if (s.type === 'seg') {
+      row.innerHTML = `<label><span>${s.label}</span></label><div class="seg" role="group"></div>`;
+      const box = $('.seg', row);
+      s.opts.forEach(o => { const bt = el('button', '', o[1]); bt.type = 'button'; bt.dataset.v = o[0]; bt.onclick = () => env.set(s.id, o[0]); box.appendChild(bt); });
+      const setv = v => $$('button', box).forEach(b => b.classList.toggle('on', b.dataset.v === String(v)));
+      setv(s.val); env.ctl[s.id] = { set: setv };
+    } else if (s.type === 'check') {
+      row.innerHTML = `<label class="chk"><input type="checkbox" ${s.val ? 'checked' : ''}><span>${s.label}</span></label>`;
+      const inp = $('input', row); inp.addEventListener('change', () => env.set(s.id, inp.checked, true));
+      env.ctl[s.id] = { set(v) { inp.checked = !!v; } };
+    } else if (s.type === 'text') {
+      row.innerHTML = `<label><span>${s.label}</span></label><input class="txt" type="text" maxlength="${s.max || 12}" value="${s.val}" aria-label="${s.label}">`;
+      const inp = $('input', row); inp.addEventListener('input', () => env.set(s.id, inp.value, true));
+      env.ctl[s.id] = { set(v) { inp.value = v; } };
+    } else if (s.type === 'btn') {
+      row.className = 'ctl btnrow'; const bt = el('button', 'cbtn', s.label); bt.type = 'button'; bt.onclick = () => s.fn(env); row.appendChild(bt);
+    }
+    env.rows[i] = row; ui.ctrl.appendChild(row);
+  });
+  const rrow = el('div', 'ctl btnrow'); const rb = el('button', 'cbtn reset', '↺ Reset experiment'); rb.type = 'button';
+  env.reset = () => {
+    def.controls.forEach(s => { if (s.id) { env.P[s.id] = s.val; env.ctl[s.id] && env.ctl[s.id].set(s.val); } });
+    env.S = {}; if (def.init) def.init(env); env.refresh(); env.say('Experiment reset');
+  };
+  rb.onclick = env.reset; rrow.appendChild(rb); ui.ctrl.appendChild(rrow);
+
+  /* ---- sizing ---- */
+  const ro = new ResizeObserver(() => {
+    const r = c.getBoundingClientRect(); env.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    env.W = Math.max(10, r.width); env.H = Math.max(10, r.height);
+    c.width = Math.round(env.W * env.dpr); c.height = Math.round(env.H * env.dpr);
+    if (def.resize) def.resize(env);
+  });
+  ro.observe(c);
+
+  /* ---- pointer ---- */
+  const pos = e => { const r = c.getBoundingClientRect(); return { x: (e.clientX - r.left) * env.W / r.width, y: (e.clientY - r.top) * env.H / r.height }; };
+  c.addEventListener('pointerdown', e => {
+    const p = pos(e); env.ptr = p;
+    if (def.down && def.down(env, p.x, p.y)) { env.drag = true; c.setPointerCapture(e.pointerId); e.preventDefault(); }
+  });
+  c.addEventListener('pointermove', e => {
+    const p = pos(e); env.ptr = p;
+    if (env.drag) { if (def.move) def.move(env, p.x, p.y); }
+    else if (def.hover) c.style.cursor = def.hover(env, p.x, p.y) ? 'grab' : 'default';
+  });
+  const up = () => { if (env.drag) { env.drag = false; if (def.up) def.up(env); } };
+  c.addEventListener('pointerup', up); c.addEventListener('pointercancel', up);
+
+  /* ---- 3D extra stage ---- */
+  if (def.init3D) { ui.stage2.classList.remove('hide'); def.init3D(env, ui.stage2); }
+
+  if (def.init) def.init(env);
+  env.refresh();
+  env.frame = (t, dt) => {
+    env.t = t; const g2 = env.g; g2.setTransform(env.dpr, 0, 0, env.dpr, 0, 0); g2.clearRect(0, 0, env.W, env.H);
+    def.draw(env, t, dt);
+    if (def.readouts) {
+      const rd = def.readouts(env), key = JSON.stringify(rd);
+      if (key !== env._rd) { env._rd = key; ui.read.innerHTML = rd.map(r => `<div class="chip ${r[2] || ''}">${r[0]}: <b>${r[1]}</b></div>`).join(''); }
+    }
+    if (def.render3D) def.render3D(env, t, dt);
+  };
+  env.destroy = () => { env.dead = true; ro.disconnect(); if (def.dispose3D) def.dispose3D(env); };
+  return env;
+}
+
+/* =====================================================================
+   Shared physics helpers
+   ===================================================================== */
+// reflect direction d about a mirror line whose angle (math/canvas) is `a` radians
+function reflectDir(d, a) { const n = { x: -Math.sin(a), y: Math.cos(a) }; const k = d.x * n.x + d.y * n.y; return { x: d.x - 2 * k * n.x, y: d.y - 2 * k * n.y }; }
+function raySeg(p, d, s) {
+  const sx = s[2] - s[0], sy = s[3] - s[1], den = d.x * sy - d.y * sx; if (Math.abs(den) < 1e-9) return null;
+  const qx = s[0] - p.x, qy = s[1] - p.y; const t = (qx * sy - qy * sx) / den, u = (qx * d.y - qy * d.x) / den;
+  return (t > 1e-4 && u >= 0 && u <= 1) ? t : null;
+}
+function rayCircle(p, d, c, r) {
+  const fx = p.x - c.x, fy = p.y - c.y, b = fx * d.x + fy * d.y, cc = fx * fx + fy * fy - r * r, disc = b * b - cc;
+  if (disc < 0) return null; const t = -b - Math.sqrt(disc); return t > 1e-4 ? t : null;
+}
+// Fresnel reflectance (unpolarised) for n1 -> n2 at incidence th1 (rad)
+function fresnelR(n1, n2, th1) {
+  const s = n1 / n2 * Math.sin(th1); if (s >= 1) return 1;
+  const th2 = Math.asin(s), c1 = Math.cos(th1), c2 = Math.cos(th2);
+  const rs = (n1 * c1 - n2 * c2) / (n1 * c1 + n2 * c2), rp = (n1 * c2 - n2 * c1) / (n1 * c2 + n2 * c1);
+  return (rs * rs + rp * rp) / 2;
+}
+/* =====================================================================
+   ACT 1  Mirror writing and lateral inversion
+   ===================================================================== */
+const SIMS = {};
+SIMS.lateral = {
+  controls: [
+    { type: 'seg', id: 'scene', label: 'Choose a scene', val: 'rear', wide: true, opts: [['rear', '🚑 Ambulance in rear-view mirror'], ['selfie', '🤳 Selfie camera'], ['free', '✏️ Free mode']] },
+    { type: 'text', id: 'text', label: 'Word on the object', val: 'AMBULANCE', max: 11 },
+    { type: 'check', id: 'inv', label: 'Write the word laterally inverted', val: false },
+    { type: 'seg', id: 'axis', label: 'Mirror type', val: 'v', opts: [['v', 'Wall or rear-view mirror'], ['h', 'Floor or water mirror']] },
+    { type: 'range', id: 'dist', label: 'Object distance from mirror', min: 1, max: 5, step: .1, val: 2.5, unit: ' m' }
+  ],
+  onChange(env, id, v) {
+    if (id === 'scene') { if (v === 'rear') env.set('text', 'AMBULANCE'); if (v === 'selfie') env.set('text', 'NIKE'); env.set('inv', false); }
+  },
+  readouts(env) {
+    const P = env.P, ok = P.axis === 'v' && P.inv;
+    return [['Object distance', fix(P.dist) + ' m'], ['Image distance', fix(P.dist) + ' m behind mirror'],
+    ['Reads correctly in mirror?', ok ? 'Yes ✓' : 'No ✗', ok ? 'ok' : 'bad']];
+  },
+  draw(env) {
+    const { g, W, H, P } = env; gridBg(g, W, H, 40);
+    const txt = (P.text || 'A').toUpperCase(), fs = clamp(Math.min(W / 12, (W / 2 - 120) / (Math.max(4, txt.length) * .78)), 16, 52);
+    g.font = `700 ${fs}px ${FONT}`; const pw = g.measureText(txt).width + 40, ph = fs + 34, t01 = (P.dist - 1) / 4, vert = P.axis === 'v';
+    const col = P.scene === 'selfie' ? ['#2b5fb8', '#ffffff'] : P.scene === 'rear' ? ['#f4f6fb', '#d62839'] : ['#7a3fe0', '#ffffff'];
+    let mx = W / 2, my = H / 2, gap, cx, cy;
+    if (vert) { const gm = Math.max(30, W / 2 - pw - 50); gap = 18 + t01 * (gm - 18); cx = mx - gap - pw / 2; cy = H / 2; }
+    else { my = H * .6; const gm = Math.max(30, my - ph - 40); gap = 18 + t01 * (gm - 18); cx = W / 2; cy = my - gap - ph / 2; }
+    const plate = () => {
+      g.save(); rr(g, cx - pw / 2, cy - ph / 2, pw, ph, 12); g.fillStyle = col[0]; g.fill(); g.lineWidth = 3; g.strokeStyle = 'rgba(0,0,0,.4)'; g.stroke();
+      g.translate(cx, cy); if (P.inv) g.scale(-1, 1); g.fillStyle = col[1]; g.font = `700 ${fs}px ${FONT}`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(txt, 0, 2); g.restore();
+    };
+    // mirror
+    const mg = vert ? g.createLinearGradient(mx - 8, 0, mx + 8, 0) : g.createLinearGradient(0, my, 0, my + 14);
+    mg.addColorStop(0, '#e9f6ff'); mg.addColorStop(.5, '#9fc4e8'); mg.addColorStop(1, '#4b6d94');
+    g.fillStyle = mg;
+    if (vert) { g.fillRect(mx - 5, H * .08, 10, H * .84); g.strokeStyle = '#6f8bb5'; g.lineWidth = 2; for (let y = H * .08; y < H * .92; y += 14) { g.beginPath(); g.moveTo(mx + 5, y); g.lineTo(mx + 14, y + 10); g.stroke(); } }
+    else { g.fillRect(W * .08, my - 5, W * .84, 10); g.strokeStyle = '#6f8bb5'; g.lineWidth = 2; for (let x = W * .08; x < W * .92; x += 14) { g.beginPath(); g.moveTo(x, my + 5); g.lineTo(x + 10, my + 14); g.stroke(); } }
+    plate();
+    g.save(); g.globalAlpha = .82;
+    if (vert) { g.translate(mx, 0); g.scale(-1, 1); g.translate(-mx, 0); } else { g.translate(0, my); g.scale(1, -1); g.translate(0, -my); }
+    plate(); g.restore();
+    // distance arrows
+    if (vert) {
+      const yy = cy + ph / 2 + 24;
+      arrow(g, mx, yy, mx - gap, yy, '#ffd23d', 2); arrow(g, mx, yy, mx + gap, yy, '#ffd23d', 2);
+      text(g, `d = ${fix(P.dist)} m  |  d = ${fix(P.dist)} m`, mx, yy + 20, '#ffd23d', 13, 'center');
+      text(g, 'Object (real)', cx, cy - ph / 2 - 12, '#9db0d6', 13, 'center'); text(g, 'Image (virtual)', mx + gap + pw / 2, cy - ph / 2 - 12, '#9db0d6', 13, 'center');
+      text(g, '👁 You look from here', 14, H - 16, '#eaf1ff', 14);
+    } else {
+      const xx = cx + pw / 2 + 28;
+      arrow(g, xx, my, xx, my - gap, '#ffd23d', 2); arrow(g, xx, my, xx, my + gap, '#ffd23d', 2);
+      text(g, `${fix(P.dist)} m`, xx + 8, my - gap / 2, '#ffd23d', 13); text(g, `${fix(P.dist)} m`, xx + 8, my + gap / 2, '#ffd23d', 13);
+      text(g, 'Object (real)', cx, cy - ph / 2 - 10, '#9db0d6', 13, 'center'); text(g, 'Image (virtual): flipped top to bottom', cx, my + gap + ph + 24, '#9db0d6', 13, 'center');
+    }
+  }
+};
+
+/* =====================================================================
+   ACT 2  The appearing coin (refraction and apparent depth)
+   ===================================================================== */
+const N_W = 1.33;
+function solveSurface(eye, xo, yo, w, Wd) {
+  const f = sx => { const thA = Math.atan2(sx - eye.x, eye.y - w), thW = Math.asin(Math.sin(thA) / N_W); return { thA, thW, land: sx + (w - yo) * Math.tan(thW) }; };
+  let lo = 0, hi = Wd; if (f(lo).land > xo || f(hi).land < xo) return null;
+  for (let i = 0; i < 48; i++) { const m = (lo + hi) / 2; if (f(m).land < xo) lo = m; else hi = m; }
+  const sx = (lo + hi) / 2, r = f(sx); r.sx = sx; return r;
+}
+SIMS.water = {
+  controls: [
+    { type: 'seg', id: 'mode', label: 'Experiment', val: 'coin', wide: true, opts: [['coin', '🪙 Appearing coin'], ['pool', '🏊 Swimming pool'], ['fish', '🎣 Spear fishing']] },
+    { type: 'range', id: 'water', label: 'Water in the basin', min: 0, max: 1, step: .01, val: 0, fmt: v => Math.round(v * 100) + '%', when: P => P.mode === 'coin' },
+    { type: 'btn', label: '🚰 Pour water slowly', when: P => P.mode === 'coin', fn: env => { if (env.P.water > .98) env.set('water', 0); env.S.pour = true; } },
+    { type: 'range', id: 'D', label: 'Real depth of water', min: 2, max: 10, step: .5, val: 6, unit: ' ft', when: P => P.mode !== 'coin' },
+    { type: 'range', id: 'yoF', label: 'Fish height above the bed', min: .3, max: 3, step: .1, val: 1, unit: ' ft', when: P => P.mode === 'fish' },
+    { type: 'range', id: 'xo', label: 'Object position (sideways)', min: 3, max: 13, step: .1, val: 9, fmt: v => fix(v) },
+    { type: 'range', id: 'ex', label: 'Your eye position (left of edge to over water)', min: -16, max: 12, step: .5, val: -12, fmt: v => fix(v) },
+    { type: 'range', id: 'eh', label: 'Eye height above the water edge', min: 3, max: 14, step: .5, val: 10, fmt: v => fix(v) },
+    { type: 'btn', label: '👇 Look straight down', fn: env => { env.set('ex', clamp(env.P.xo, -16, 12)); } },
+    { type: 'btn', label: '🎯 Aim at the real fish', when: P => P.mode === 'fish', fn: env => { env.S.aim = { x: env.P.xo, y: env.P.yoF }; } },
+    { type: 'btn', label: '🔱 Throw the spear', when: P => P.mode === 'fish', fn: env => SIMS.water.throwSpear(env) }
+  ],
+  init(env) { env.S.aim = null; env.S.pour = false; },
+  onChange(env, id, v) {
+    if (id === 'mode') {
+      const d = { coin: { D: 10, water: 0, xo: 9, ex: -12, eh: 10 }, pool: { D: 6, xo: 6, ex: -3, eh: 5 }, fish: { D: 3.5, xo: 8, ex: -4, eh: 5, yoF: 1 } }[v];
+      env.S.aim = null; Object.keys(d).forEach(k => { env.P[k] = d[k]; env.ctl[k] && env.ctl[k].set(d[k]); });
+    }
+    if (id === 'D' || id === 'yoF') env.S.aim = null;
+  },
+  throwSpear(env) {
+    const a = env.S.aim, P = env.P; if (!a) return;
+    const d = Math.hypot(a.x - P.xo, a.y - P.yoF);
+    if (d < .7) { env.say('Direct hit! You aimed below the image, at the real fish.', 'good'); env.goal(); }
+    else env.say('Missed! You aimed at the fish IMAGE. The real fish is deeper.', 'bad');
+  },
+  geo(env) {
+    const P = env.P, mode = P.mode, D = mode === 'coin' ? 10 : P.D, w = mode === 'coin' ? P.water * D : D;
+    return { mode, D, w, Wd: 14, ex: P.ex, ey: D + P.eh, xo: P.xo, yo: mode === 'fish' ? Math.min(P.yoF, D - .3) : 0 };
+  },
+  view(env) {
+    const o = SIMS.water.geo(env), { W, H } = env;
+    const xmin = Math.min(o.ex - 2.5, -3), xmax = o.Wd + 3, ymin = -1.6, ymax = o.ey + 2.2;
+    const s = Math.min(W / (xmax - xmin), H / (ymax - ymin)) * .97, padX = (W - s * (xmax - xmin)) / 2, padY = (H - s * (ymax - ymin)) / 2;
+    return { o, xmin, xmax, ymin, ymax, s, padX, padY, X: x => (x - xmin) * s + padX, Y: y => H - ((y - ymin) * s + padY) };
+  },
+  compute(env) {
+    const o = SIMS.water.geo(env), eye = { x: o.ex, y: o.ey }, hasRim = o.ex < 0, r = { o, eye, hasRim };
+    if (o.w < .02) {
+      const t = (0 - o.ex) / (o.xo - o.ex), y0 = o.ey + (o.yo - o.ey) * t; r.vis = hasRim ? y0 >= o.D - 1e-6 : true; r.direct = true;
+    } else {
+      r.sol = solveSurface(eye, o.xo, o.yo, o.w, o.Wd);
+      if (r.sol) {
+        const t = (0 - o.ex) / (r.sol.sx - o.ex), y0 = o.ey + (o.w - o.ey) * t; r.vis = hasRim ? y0 >= o.D - 1e-6 : true;
+        const dx = r.sol.sx - o.ex, dy = o.w - o.ey;
+        r.yapp = Math.abs(dx) < 1e-3 ? o.w - (o.w - o.yo) / N_W : o.w + ((o.xo - r.sol.sx) / dx) * dy;
+        r.ratio = (o.w - r.yapp) / Math.max(1e-6, o.w - o.yo);
+      } else r.vis = false;
+    }
+    if (hasRim) { // limit ray through the rim
+      const xs = (o.D - o.w) * (-o.ex) / (o.ey - o.D), thA = Math.atan2(xs - o.ex, o.ey - o.w), thW = Math.asin(Math.sin(thA) / N_W);
+      r.xs = xs; r.xlim = xs + o.w * Math.tan(thW);
+    }
+    return r;
+  },
+  readouts(env) {
+    const r = SIMS.water.compute(env), o = r.o, u = o.mode === 'coin' ? ' cm' : ' ft', out = [];
+    if (o.mode === 'coin') out.push(['Water level', fix(o.w) + u], ['Coin', r.vis ? 'visible ✓' : 'hidden behind the wall', r.vis ? 'ok' : 'bad']);
+    if (r.ratio) {
+      out.push(['Real depth', fix(o.w - o.yo) + u], ['Looks like', fix(o.w - r.yapp) + u], ['Apparent / real', Math.round(r.ratio * 100) + '%'], ['Theory (1/n, looking down)', '75%']);
+    }
+    return out;
+  },
+  down(env, x, y) {
+    if (env.P.mode !== 'fish' || !env.S.aim) return false; const v = SIMS.water.view(env);
+    return Math.hypot(v.X(env.S.aim.x) - x, v.Y(env.S.aim.y) - y) < 28;
+  },
+  move(env, px, py) {
+    const v = SIMS.water.view(env), x = (px - v.padX) / v.s + v.xmin, y = v.ymin + (env.H - py - v.padY) / v.s;
+    env.S.aim = { x: clamp(x, .3, v.o.Wd - .3), y: clamp(y, .1, v.o.w - .1) };
+  },
+  hover(env, x, y) { return SIMS.water.down(env, x, y); },
+  draw(env, t, dt) {
+    const { g, W, H, P } = env, v = SIMS.water.view(env), { o, X, Y, s } = v, r = SIMS.water.compute(env);
+    if (env.S.pour) { const nv = Math.min(1, P.water + (dt || .016) * .16); env.set('water', nv); if (nv >= 1) env.S.pour = false; }
+    const sky = g.createLinearGradient(0, 0, 0, H); sky.addColorStop(0, '#0a1330'); sky.addColorStop(1, '#16264f'); g.fillStyle = sky; g.fillRect(0, 0, W, H);
+    // ground
+    const topL = o.mode === 'coin' ? 0 : o.D;
+    g.fillStyle = o.mode === 'coin' ? '#5b4630' : '#8a7a62';
+    g.fillRect(X(v.xmin - 3), Y(topL), X(0) - X(v.xmin - 3), Y(v.ymin) - Y(topL) + 40);
+    g.fillRect(X(o.Wd), Y(topL), X(v.xmax + 3) - X(o.Wd), Y(v.ymin) - Y(topL) + 40);
+    g.fillStyle = o.mode === 'coin' ? '#5b4630' : '#c9b99a'; g.fillRect(X(0), Y(0), X(o.Wd) - X(0), Y(v.ymin) - Y(0) + 40);
+    if (o.mode !== 'coin') { g.fillStyle = '#6dc7e8'; g.fillRect(X(0), Y(0), X(o.Wd) - X(0), 5); }
+    // glass basin walls
+    if (o.mode === 'coin') {
+      g.fillStyle = 'rgba(150,200,255,.12)'; g.fillRect(X(0), Y(o.D), X(o.Wd) - X(0), Y(0) - Y(o.D));
+      g.fillStyle = '#2a2f40'; g.fillRect(X(-.5), Y(o.D), X(0) - X(-.5), Y(0) - Y(o.D)); g.fillRect(X(o.Wd), Y(o.D), X(o.Wd + .3) - X(o.Wd), Y(0) - Y(o.D));
+      text(g, 'basin wall', X(-.6), Y(o.D) - 6, '#9db0d6', 12, 'right');
+    }
+    // water
+    if (o.w > .02) {
+      const wg = g.createLinearGradient(0, Y(o.w), 0, Y(0)); wg.addColorStop(0, 'rgba(70,170,230,.55)'); wg.addColorStop(1, 'rgba(20,80,160,.75)');
+      g.fillStyle = wg; g.beginPath(); g.moveTo(X(0), Y(0)); g.lineTo(X(0), Y(o.w));
+      for (let x = 0; x <= o.Wd; x += .25) g.lineTo(X(x), Y(o.w) + Math.sin(x * 2 + env.t * 2) * (o.mode === 'coin' ? .8 : 1.6));
+      g.lineTo(X(o.Wd), Y(0)); g.closePath(); g.fill(); line(g, X(0), Y(o.w), X(o.Wd), Y(o.w), '#bfeaff', 2);
+    }
+    // hidden zone
+    if (r.hasRim && (o.mode === 'coin' || o.mode === 'pool')) {
+      const xl = Math.min(r.xlim, o.Wd); g.fillStyle = 'rgba(255,60,80,.28)'; g.fillRect(X(0), Y(0) - 7, X(xl) - X(0), 7);
+      line(g, X(o.ex), Y(o.ey), X(0), Y(o.D), '#ff6b7a', 1.6, [6, 5]);
+      line(g, X(0), Y(o.D), X(r.xs), Y(o.w), '#ff6b7a', 1.6, [6, 5]); if (o.w > .02) line(g, X(r.xs), Y(o.w), X(r.xlim), Y(0), '#ff6b7a', 1.6, [6, 5]);
+      text(g, 'hidden zone', X(Math.min(xl, o.Wd) / 2), Y(0) - 12, '#ff9aa6', 12, 'center');
+    }
+    // object
+    const drawObj = (x, y, alpha, ghost) => {
+      g.save(); g.globalAlpha = alpha; if (ghost) g.setLineDash([5, 4]);
+      if (o.mode === 'fish') {
+        g.fillStyle = ghost ? 'rgba(255,90,209,.15)' : '#ff9d4d'; g.strokeStyle = ghost ? '#ff5ad1' : '#7a3b00'; g.lineWidth = 2;
+        g.beginPath(); g.ellipse(X(x), Y(y), 1.0 * s, .42 * s, 0, 0, TAU); g.fill(); g.stroke();
+        g.beginPath(); g.moveTo(X(x) + .9 * s, Y(y)); g.lineTo(X(x) + 1.7 * s, Y(y) - .5 * s); g.lineTo(X(x) + 1.7 * s, Y(y) + .5 * s); g.closePath(); g.fill(); g.stroke();
+        if (!ghost) dot(g, X(x) - .5 * s, Y(y) - .08 * s, 3, '#000');
+      } else {
+        g.fillStyle = ghost ? 'rgba(255,90,209,.15)' : '#ffd23d'; g.strokeStyle = ghost ? '#ff5ad1' : '#8a5a00'; g.lineWidth = 2;
+        const ry = o.mode === 'coin' ? .25 : .35; g.beginPath(); g.ellipse(X(x), Y(y + ry), .9 * s, ry * s, 0, 0, TAU); g.fill(); g.stroke();
+        if (!ghost) text(g, o.mode === 'coin' ? '₹' : '', X(x), Y(y + ry) + 4, '#8a5a00', Math.max(9, s * .5), 'center', 700);
+      }
+      g.restore();
+    };
+    drawObj(o.xo, o.yo, r.vis ? 1 : .55, false);
+    // rays
+    if (r.vis && o.w > .02 && r.sol) {
+      const S = r.sol; glow(g, X(o.ex), Y(o.ey), X(S.sx), Y(o.w), '#ffd23d', 2.5, .95); glow(g, X(S.sx), Y(o.w), X(o.xo), Y(o.yo), '#4de3d0', 2.5, .95);
+      line(g, X(S.sx), Y(o.w) - 60, X(S.sx), Y(o.w) + 60, '#fff', 1.2, [4, 4], .7);
+      const dx = S.sx - o.ex, dy = o.w - o.ey, L = Math.hypot(dx, dy), tt = (o.xo - S.sx) / (Math.abs(dx) < 1e-3 ? 1 : dx);
+      if (r.yapp != null) { line(g, X(S.sx), Y(o.w), X(o.xo), Y(r.yapp), '#ff5ad1', 2, [7, 5]); drawObj(o.xo, r.yapp, .85, true); }
+      text(g, 'θ air ' + fix(S.thA * R2D, 0) + '°', X(S.sx) + 8, Y(o.w) - 34, '#ffd23d', 13, 'left', 600);
+      text(g, 'θ water ' + fix(S.thW * R2D, 0) + '°', X(S.sx) + 8, Y(o.w) + 46, '#4de3d0', 13, 'left', 600);
+    } else if (r.vis && r.direct) { glow(g, X(o.ex), Y(o.ey), X(o.xo), Y(o.yo), '#ffd23d', 2.5, .95); }
+    // pool: apparent floor
+    if (o.mode === 'pool' && o.w > .02) {
+      g.save(); g.strokeStyle = '#ff5ad1'; g.setLineDash([8, 6]); g.lineWidth = 2.2; g.beginPath(); let st = false;
+      for (let x = 1; x <= o.Wd - .5; x += .4) { const sl = solveSurface({ x: o.ex, y: o.ey }, x, 0, o.w, o.Wd); if (!sl) continue; const dx = sl.sx - o.ex, dy = o.w - o.ey; const ya = Math.abs(dx) < 1e-3 ? o.w - o.w / N_W : o.w + ((x - sl.sx) / dx) * dy; if (!st) { g.moveTo(X(x), Y(ya)); st = true; } else g.lineTo(X(x), Y(ya)); }
+      g.stroke(); g.restore(); text(g, 'what the floor APPEARS to be', X(.8), Y(o.w - o.w / N_W) + 26, '#ff5ad1', 13, 'left', 600);
+    }
+    // eye + person
+    const ex = X(o.ex), ey = Y(o.ey);
+    if (o.ex <= 0 && o.mode !== 'coin') { line(g, ex, ey + 12, ex, Y(o.D), '#cfe3ff', 5); }
+    dot(g, ex, ey, Math.max(11, s * .55), '#f2d6b3', '#8a6a3c'); dot(g, ex + 4, ey - 1, 4, '#001'); text(g, 'your eye', ex, ey - Math.max(16, s * .8), '#eaf1ff', 12, 'center');
+    if (o.mode === 'fish') {
+      if (!env.S.aim && r.yapp != null) env.S.aim = { x: o.xo, y: r.yapp };
+      const a = env.S.aim; if (a) {
+        const hx = X(o.ex) + 14, hy = Y(o.ey) + 24, ax = X(a.x), ay = Y(a.y), k = 1.25;
+        g.save(); g.strokeStyle = '#d9b27a'; g.lineWidth = 4; g.lineCap = 'round'; g.beginPath(); g.moveTo(hx, hy); g.lineTo(hx + (ax - hx) * k, hy + (ay - hy) * k); g.stroke(); g.restore();
+        dot(g, ax, ay, 9, 'rgba(255,255,255,.2)', '#fff'); text(g, 'drag the aim point', ax + 12, ay - 12, '#fff', 12);
+      }
+    }
+    // normal & labels
+    text(g, o.mode === 'coin' ? 'Look at the coin over the wall, then add water' : o.mode === 'pool' ? 'Pool floor looks higher than it really is' : 'Aim the spear where you think the fish IS', 12, 22, '#9db0d6', 13);
+  }
+};
+
+/* =====================================================================
+   ACT 3  Simultaneous contrast
+   ===================================================================== */
+function perceive(bright, ambPct) {
+  const lux = Math.pow(10, ambPct / 100 * 5), Wn = 20 + 480 * bright / 100, Bk = .3, refl = .05 * lux / Math.PI, amb = .3 * lux / Math.PI, La = amb + .15 * Wn;
+  const f = L => Math.pow(L / (L + La), .6);
+  return { gw: f(Wn + refl), gb: f(Bk + refl), gbg: f(amb), cr: (Wn + refl) / (Bk + refl), lux };
+}
+SIMS.contrast = {
+  controls: [
+    { type: 'seg', id: 'view', label: 'Experiment', val: 'phone', wide: true, opts: [['phone', '📱 Phone: dark room vs sunlight'], ['patch', '🔲 Same grey, different background'], ['camo', '🐆 Camouflage']] },
+    { type: 'range', id: 'bright', label: 'Phone screen brightness', min: 5, max: 100, step: 1, val: 50, unit: '%', when: P => P.view === 'phone' },
+    { type: 'range', id: 'sun', label: 'Sunlight on the right', min: 10, max: 100, step: 1, val: 90, unit: '%', when: P => P.view === 'phone' },
+    { type: 'btn', label: '☀️ Turn brightness to max', when: P => P.view === 'phone', fn: env => env.set('bright', 100) },
+    { type: 'range', id: 'grey', label: 'Grey of the two squares', min: 20, max: 235, step: 1, val: 128, when: P => P.view === 'patch' },
+    { type: 'range', id: 'bgA', label: 'Left background', min: 0, max: 255, step: 1, val: 30, when: P => P.view === 'patch' },
+    { type: 'range', id: 'bgB', label: 'Right background', min: 0, max: 255, step: 1, val: 225, when: P => P.view === 'patch' },
+    { type: 'check', id: 'bridge', label: 'Join the squares with a grey strip (reveal the truth)', val: false, when: P => P.view === 'patch' },
+    { type: 'range', id: 'tone', label: 'Ground brightness', min: 20, max: 235, step: 1, val: 235, when: P => P.view === 'camo' },
+    { type: 'check', id: 'spots', label: 'Spotted coat (break-up pattern)', val: true, when: P => P.view === 'camo' }
+  ],
+  readouts(env) {
+    const P = env.P;
+    if (P.view === 'phone') { const a = perceive(P.bright, 10), b = perceive(P.bright, P.sun); return [['Contrast ratio, dark room', fix(a.cr, 0) + ' : 1', 'ok'], ['Contrast ratio, sunlight', fix(b.cr, 1) + ' : 1', b.cr < 3 ? 'bad' : 'ok'], ['Sunlight reading', b.cr < 3 ? 'Hard to read' : 'Readable']]; }
+    if (P.view === 'patch') return [['Left square grey value', P.grey], ['Right square grey value', P.grey], ['Real difference', '0'], ['Your eyes say', P.bgA < P.bgB ? 'left looks lighter' : P.bgA > P.bgB ? 'right looks lighter' : 'same']];
+    const det = P.spots ? (Math.abs(150 - P.tone) * .7 + Math.abs(70 - P.tone) * .3) : Math.abs(150 - P.tone); const vis = clamp(Math.round(det / 255 * 230), 0, 100);
+    return [['Coat brightness', P.spots ? '150 with dark spots' : '150'], ['Ground brightness', P.tone], ['How easily you spot it', vis + '%', vis < 25 ? 'ok' : 'bad']];
+  },
+  draw(env) {
+    const { g, W, H, P } = env;
+    if (P.view === 'patch') {
+      const half = W / 2; g.fillStyle = `rgb(${P.bgA},${P.bgA},${P.bgA})`; g.fillRect(0, 0, half, H); g.fillStyle = `rgb(${P.bgB},${P.bgB},${P.bgB})`; g.fillRect(half, 0, half, H);
+      const sz = Math.min(half * .5, H * .5), gy = P.grey, cy = H / 2 - sz / 2 - 10;
+      g.fillStyle = `rgb(${gy},${gy},${gy})`; g.fillRect(half / 2 - sz / 2, cy, sz, sz); g.fillRect(half + half / 2 - sz / 2, cy, sz, sz);
+      if (P.bridge) g.fillRect(half / 2 + sz / 2 - 1, cy + sz * .35, half + 2 - sz + 2, sz * .3);
+      const tc = v => v > 128 ? '#111' : '#eee';
+      text(g, 'Square A', half / 2, cy + sz + 28, tc(P.bgA), 15, 'center', 600); text(g, 'Square B', half * 1.5, cy + sz + 28, tc(P.bgB), 15, 'center', 600);
+      text(g, P.bridge ? 'They are exactly the same grey.' : 'Which square is lighter?', W / 2, 30, P.bgA > 128 ? '#111' : '#eee', 17, 'center', 600);
+      return;
+    }
+    if (P.view === 'phone') {
+      const halves = [{ amb: 10, lbl: 'Dark room', x: 0 }, { amb: P.sun, lbl: 'Bright sunlight', x: W / 2 }];
+      halves.forEach((h, i) => {
+        const p = perceive(P.bright, h.amb), bgv = Math.round(255 * p.gbg), gw = Math.round(255 * p.gw), gb = Math.round(255 * p.gb);
+        g.fillStyle = i ? `rgb(${Math.min(255, bgv + 20)},${bgv},${Math.max(0, bgv - 40)})` : `rgb(${bgv},${bgv},${Math.min(255, bgv + 6)})`; g.fillRect(h.x, 0, W / 2, H);
+        const pw = Math.min(W / 2 * .46, H * .5), ph = pw * 1.95, cx = h.x + W / 4, cy = H / 2 + 8;
+        rr(g, cx - pw / 2 - 6, cy - ph / 2 - 6, pw + 12, ph + 12, 22); g.fillStyle = '#16181d'; g.fill();
+        rr(g, cx - pw / 2, cy - ph / 2, pw, ph, 16); g.fillStyle = `rgb(${gb},${gb},${gb})`; g.fill();
+        const wc = `rgb(${gw},${gw},${gw})`; g.fillStyle = wc;
+        g.beginPath(); g.arc(cx - pw / 2 + 22, cy - ph / 2 + 30, 11, 0, TAU); g.fill();
+        rr(g, cx - pw / 2 + 40, cy - ph / 2 + 22, pw * .45, 7, 3); g.fill();
+        [[.5, .72], [.62, .55], [.5, .68], [.75, .6]].forEach((b, k) => { rr(g, cx - pw / 2 + 14 + (k % 2) * (pw * .22), cy - ph / 2 + 62 + k * 26, pw * b[1], 14, 7); g.fill(); });
+        if (i) { const gl = g.createRadialGradient(cx + pw * .4, cy - ph * .4, 2, cx + pw * .4, cy - ph * .4, pw); gl.addColorStop(0, `rgba(255,255,240,${clamp((h.amb - 30) / 90, 0, .8)})`); gl.addColorStop(1, 'rgba(255,255,240,0)'); g.save(); rr(g, cx - pw / 2, cy - ph / 2, pw, ph, 16); g.clip(); g.fillStyle = gl; g.fillRect(cx - pw, cy - ph, pw * 2, ph * 2); g.restore(); }
+        text(g, h.lbl, cx, 30, bgv > 120 ? '#222' : '#cfe3ff', 16, 'center', 600);
+        text(g, 'screen is ' + P.bright + '% bright', cx, H - 16, bgv > 120 ? '#222' : '#9db0d6', 13, 'center');
+      });
+      return;
+    }
+    // camouflage
+    const rnd = mulberry(7), T = P.tone, tint = (v, k) => `rgb(${clamp(v, 0, 255)},${clamp(v * .92, 0, 255)},${clamp(v * (k || .62), 0, 255)})`;
+    g.fillStyle = tint(T); g.fillRect(0, 0, W, H);
+    for (let i = 0; i < 90; i++) { const x = rnd() * W, y = rnd() * H, r = 8 + rnd() * 26, v = T + (rnd() - .5) * 90; g.fillStyle = tint(v); g.beginPath(); g.ellipse(x, y, r * 1.3, r, rnd() * 3, 0, TAU); g.fill(); }
+    const cx = W / 2, cy = H / 2 + 20, sc = Math.min(W / 640, H / 360) * 1.1, coat = tint(150), spot = tint(70);
+    g.save(); g.translate(cx, cy); g.scale(sc, sc); g.fillStyle = coat; g.strokeStyle = coat; g.lineWidth = 10; g.lineCap = 'round';
+    g.beginPath(); g.ellipse(0, 0, 130, 50, 0, 0, TAU); g.fill();
+    [[-90, 38], [-60, 40], [70, 38], [100, 36]].forEach(l => { g.beginPath(); g.moveTo(l[0], 20); g.lineTo(l[0] + (l[0] < 0 ? -6 : 6), l[1] + 42); g.stroke(); });
+    g.beginPath(); g.moveTo(-125, -10); g.bezierCurveTo(-190, -30, -200, -80, -160, -90); g.stroke();
+    g.beginPath(); g.arc(135, -24, 32, 0, TAU); g.fill(); g.beginPath(); g.moveTo(125, -52); g.lineTo(130, -70); g.lineTo(145, -54); g.fill();
+    if (P.spots) { g.fillStyle = spot; const r2 = mulberry(3); for (let i = 0; i < 26; i++) { const a = r2() * TAU, rr2 = Math.sqrt(r2()); g.beginPath(); g.arc(Math.cos(a) * 110 * rr2, Math.sin(a) * 38 * rr2, 6 + r2() * 5, 0, TAU); g.fill(); } }
+    dot(g, 145, -30, 3.5, '#111'); g.restore();
+    text(g, 'Can you spot the leopard? Change the ground brightness.', 12, 22, T > 140 ? '#222' : '#eee', 14, 'left', 600);
+  }
+};
+/* =====================================================================
+   ACT 4  The spoon face (concave and convex mirrors)
+   ===================================================================== */
+SIMS.mirror = {
+  controls: [
+    { type: 'seg', id: 'kind', label: 'Which side of the spoon?', val: 'concave', wide: true, opts: [['concave', '🥄 Inside (concave)'], ['convex', '🥄 Back (convex)']] },
+    { type: 'range', id: 'f', label: 'Focal length f', min: 4, max: 14, step: .5, val: 8, unit: ' cm' },
+    { type: 'range', id: 'u', label: 'Object distance u', min: 2, max: 40, step: .5, val: 22, unit: ' cm' },
+    { type: 'btn', label: 'Beyond C', fn: e => e.set('u', Math.min(40, 2 * e.P.f + 6)) },
+    { type: 'btn', label: 'At C', fn: e => e.set('u', 2 * e.P.f) },
+    { type: 'btn', label: 'Between C and F', fn: e => e.set('u', 1.5 * e.P.f) },
+    { type: 'btn', label: 'At F', fn: e => e.set('u', e.P.f) },
+    { type: 'btn', label: 'Inside F (very close)', fn: e => e.set('u', Math.max(2, e.P.f / 2)) }
+  ],
+  calc(P) {
+    const concave = P.kind === 'concave', f = concave ? -P.f : P.f, u = -P.u, inv = 1 / f - 1 / u, inf = Math.abs(inv) < 1e-4;
+    const v = inf ? null : 1 / inv, m = inf ? null : -v / u; return { concave, f, u, v, m, inf };
+  },
+  readouts(env) {
+    const c = SIMS.mirror.calc(env.P); if (c.inf) return [['Object distance', fix(env.P.u) + ' cm'], ['Image', 'at infinity (parallel rays)']];
+    const real = c.v < 0, erect = c.m > 0, am = Math.abs(c.m), size = am > 1.02 ? 'magnified' : am < .98 ? 'diminished' : 'same size';
+    return [['Image distance v', fix(Math.abs(c.v)) + ' cm ' + (real ? 'in front' : 'behind')], ['Magnification m', fix(c.m, 2)], ['Image', (real ? 'real' : 'virtual') + ', ' + (erect ? 'erect' : 'inverted') + ', ' + size, real ? '' : 'ok']];
+  },
+  lay(env) { const s = env.W * .8 / 46; return { s, mx: env.W * .8, cy: env.H * .5, PX: x => env.W * .8 + x * s, PY: y => env.H * .5 - y * s }; },
+  down(env, x, y) { const L = SIMS.mirror.lay(env), c = SIMS.mirror.calc(env.P); return Math.abs(L.PX(c.u) - x) < 22 && Math.abs(y - L.cy) < 90; },
+  move(env, x) { const L = SIMS.mirror.lay(env); env.set('u', clamp(Math.round((L.mx - x) / L.s * 2) / 2, 2, 40)); },
+  hover(env, x, y) { return SIMS.mirror.down(env, x, y); },
+  face(g, cx, cy, size, rot) {
+    g.save(); g.translate(cx, cy); g.rotate(rot); g.fillStyle = '#ffd9a8'; g.beginPath(); g.arc(0, 0, size / 2, 0, TAU); g.fill();
+    g.strokeStyle = '#7a4a1a'; g.lineWidth = Math.max(1.5, size / 28); g.beginPath(); g.arc(0, size * .04, size * .26, .15 * Math.PI, .85 * Math.PI); g.stroke();
+    dot(g, -size * .16, -size * .1, size * .05, '#222'); dot(g, size * .16, -size * .1, size * .05, '#222');
+    g.fillStyle = '#e63946'; g.beginPath(); g.moveTo(-size * .5, -size * .12); g.quadraticCurveTo(-size * .2, -size * .75, size * .15, -size * .5); g.lineTo(size * .05, -size * .3); g.closePath(); g.fill(); g.restore();
+  },
+  draw(env) {
+    const { g, W, H, P } = env, L = SIMS.mirror.lay(env), { s, mx, cy, PX, PY } = L, c = SIMS.mirror.calc(P), h = 5, f = c.f, u = c.u;
+    gridBg(g, W, H, 40); line(g, 0, cy, W, cy, '#506090', 1.5);
+    // mirror
+    const R = 2 * P.f, a = Math.min(11, R * .92), ang = Math.asin(a / R);
+    g.save(); g.lineCap = 'round';
+    if (c.concave) { g.strokeStyle = '#cfe8ff'; g.lineWidth = 6; g.beginPath(); g.arc(mx - R * s, cy, R * s, -ang, ang); g.stroke(); }
+    else { g.strokeStyle = '#cfe8ff'; g.lineWidth = 6; g.beginPath(); g.arc(mx + R * s, cy, R * s, Math.PI - ang, Math.PI + ang); g.stroke(); }
+    g.strokeStyle = '#6f8bb5'; g.lineWidth = 2;
+    for (let k = -8; k <= 8; k++) {
+      const th = (c.concave ? 0 : Math.PI) + k / 8 * ang, cx0 = c.concave ? mx - R * s : mx + R * s, sg = c.concave ? 1 : -1;
+      const x1 = cx0 + Math.cos(th) * R * s, y1 = cy + Math.sin(th) * R * s;
+      g.beginPath(); g.moveTo(x1, y1); g.lineTo(x1 + sg * Math.cos(th) * 12 + 4, y1 + sg * Math.sin(th) * 12 + 4); g.stroke();
+    }
+    g.restore();
+    // F, C, P marks
+    [['P', 0], ['F', f], ['C', 2 * f]].forEach(m => { dot(g, PX(m[1]), cy, 4, m[0] === 'F' ? '#ffd23d' : '#9db0d6'); text(g, m[0], PX(m[1]), cy + 22, m[0] === 'F' ? '#ffd23d' : '#9db0d6', 14, 'center', 600); });
+    // object
+    arrow(g, PX(u), cy, PX(u), PY(h), '#4de3d0', 4); text(g, 'Object', PX(u), cy + 22, '#4de3d0', 13, 'center');
+    // rays
+    const rays = [], yB = Math.abs(u - f) < 1e-3 ? null : h * (-f) / (u - f);
+    const sg = c.concave ? 1 : -1;
+    rays.push({ y: h, d: { x: sg * f, y: -sg * h }, col: '#ff4d4d' });
+    if (yB != null && Math.abs(yB) <= a * 1.02) rays.push({ y: yB, d: { x: -1, y: 0 }, col: '#ffd23d' });
+    rays.push({ y: 0, d: { x: u, y: -h }, col: '#c15bff' });
+    rays.forEach(r => {
+      glow(g, PX(u), PY(h), PX(0), PY(r.y), r.col, 2.2, .9);
+      const dl = Math.hypot(r.d.x, r.d.y), dx = r.d.x / dl, dy = r.d.y / dl; if (dx >= -1e-3) return;
+      const tEnd = (-48 - 0) / dx; glow(g, PX(0), PY(r.y), PX(0 + dx * tEnd), PY(r.y + dy * tEnd), r.col, 2.2, c.v != null && c.v < 0 ? .9 : .75);
+      if (c.v != null && c.v > 0) { const ix = c.v, iy = c.m * h; line(g, PX(0), PY(r.y), PX(ix), PY(iy), r.col, 1.8, [6, 5], .9); }
+    });
+    // image
+    if (!c.inf && Math.abs(c.v) < 90) {
+      const ix = c.v, ih = c.m * h, real = c.v < 0, col = real ? '#ff9d4d' : '#ff5ad1';
+      arrow(g, PX(ix), cy, PX(ix), PY(clamp(ih, -22, 22)), col, 4, real ? null : [7, 5]);
+      text(g, real ? 'Real image' : 'Virtual image', PX(ix), cy + (ih > 0 ? 22 : -14), col, 13, 'center', 600);
+    } else text(g, 'Reflected rays are parallel: image at infinity', W * .42, 52, '#ffd23d', 15, 'center', 600);
+    // preview inset
+    if (W > 520) {
+      const bx = 12, by = 12, bw = 168, bh = 150; rr(g, bx, by, bw, bh, 12); g.fillStyle = 'rgba(8,14,32,.88)'; g.fill(); g.strokeStyle = '#25365f'; g.lineWidth = 1.5; g.stroke();
+      text(g, 'Your face in the spoon', bx + bw / 2, by + 20, '#9db0d6', 12, 'center');
+      g.save(); rr(g, bx + 6, by + 28, bw - 12, bh - 36, 8); g.clip();
+      if (c.inf) text(g, 'blur', bx + bw / 2, by + 90, '#9db0d6', 16, 'center'); else { const am = clamp(Math.abs(c.m), .25, 2.3); SIMS.mirror.face(g, bx + bw / 2, by + 90, 52 * am, c.m < 0 ? Math.PI : 0); }
+      g.restore();
+    }
+    text(g, 'Drag the arrow, or use the sliders', W - 12, 22, '#9db0d6', 13, 'right');
+  }
+};
+
+/* =====================================================================
+   ACT 5  Ribbon and beam tracing (law of reflection, d_o = d_i)
+   ===================================================================== */
+function candle(g, x, y, ghost) {
+  g.save(); g.globalAlpha = ghost ? .6 : 1; g.fillStyle = ghost ? 'rgba(255,90,209,.35)' : '#f4efe0'; g.strokeStyle = ghost ? '#ff5ad1' : '#8a8466'; g.lineWidth = 2; if (ghost) g.setLineDash([4, 3]);
+  rr(g, x - 7, y - 4, 14, 30, 3); g.fill(); g.stroke(); g.setLineDash([]); g.fillStyle = '#ffb703'; g.shadowColor = '#ffb703'; g.shadowBlur = ghost ? 4 : 14; g.beginPath(); g.ellipse(x, y - 13, 5, 10, 0, 0, TAU); g.fill(); g.restore();
+}
+SIMS.reflect = {
+  controls: [
+    { type: 'seg', id: 'mode', label: 'Experiment', val: 'law', wide: true, opts: [['law', '🔦 Law of reflection'], ['image', '🕯️ Image in a plane mirror'], ['bank', '🎱 Bank shot (carrom, billiards)']] },
+    { type: 'range', id: 'ai', label: 'Angle of incidence ∠i', min: 0, max: 85, step: 1, val: 35, unit: '°', when: P => P.mode === 'law' },
+    { type: 'range', id: 'tilt', label: 'Tilt the mirror', min: -25, max: 25, step: 1, val: 0, unit: '°', when: P => P.mode === 'law' },
+    { type: 'check', id: 'ribbon', label: 'Show the angle ribbons (arcs)', val: true, when: P => P.mode === 'law' },
+    { type: 'range', id: 'do', label: 'Object distance d_o', min: 1, max: 8, step: .1, val: 4, unit: ' units', when: P => P.mode === 'image' },
+    { type: 'check', id: 'rays3', label: 'Show extra rays and where they seem to come from', val: true, when: P => P.mode === 'image' },
+    { type: 'range', id: 'aim', label: 'Aim point on the cushion', min: 0, max: 1, step: .005, val: .35, fmt: v => Math.round(v * 100) + '%', when: P => P.mode === 'bank' },
+    { type: 'btn', label: '🎯 Auto-aim with the mirror trick', when: P => P.mode === 'bank', fn: env => { const T = SIMS.reflect.tab(env); env.set('aim', clamp(T.star, 0, 1)); env.set('trick', true); } },
+    { type: 'btn', label: '▶ Shoot', when: P => P.mode === 'bank', fn: env => SIMS.reflect.shoot(env) },
+    { type: 'check', id: 'trick', label: 'Show the mirror-image trick', val: false, when: P => P.mode === 'bank' },
+    { type: 'seg', id: 'theme', label: 'Table', val: 'snooker', opts: [['snooker', 'Snooker table'], ['carrom', 'Carrom board']], when: P => P.mode === 'bank' }
+  ],
+  init(env) { env.S = { B: { x: .3, y: .82 }, T: { x: .72, y: .72 }, E: { x: .16, y: .2 }, oy: .56, shot: null, drag: null }; },
+  onChange(env, id) { if (id === 'aim' || id === 'mode') env.S.shot = null; },
+  tab(env) {
+    const { W, H, S, P } = env, x0 = W * .07, y0 = H * .08, x1 = W * .93, y1 = H * .92, tw = x1 - x0, th = y1 - y0, r = Math.max(8, Math.min(W, H) * .022), yc = y0 + r + 4;
+    const B = { x: x0 + S.B.x * tw, y: y0 + S.B.y * th }, T = { x: x0 + S.T.x * tw, y: y0 + S.T.y * th };
+    const px = x0 + r + P.aim * (tw - 2 * r), star = ((B.x + (T.x - B.x) * (B.y - yc) / ((B.y - yc) + (T.y - yc))) - x0 - r) / (tw - 2 * r);
+    return { x0, y0, x1, y1, tw, th, r, yc, B, T, px, star };
+  },
+  shoot(env) {
+    const t = SIMS.reflect.tab(env), P0 = { x: t.px, y: t.yc }, dl = Math.hypot(P0.x - t.B.x, P0.y - t.B.y), d1 = { x: (P0.x - t.B.x) / dl, y: (P0.y - t.B.y) / dl }, d2 = { x: d1.x, y: -d1.y };
+    const hit = rayCircle(P0, d2, t.T, t.r * 2), walls = [];
+    [[t.x0 + t.r, 'x'], [t.x1 - t.r, 'x'], [t.y1 - t.r, 'y']].forEach(w => { const tt = w[1] === 'x' ? (w[0] - P0.x) / d2.x : (w[0] - P0.y) / d2.y; if (tt > 1e-3) walls.push(tt); });
+    const tw = Math.min(...walls), tEnd = hit != null && hit < tw ? hit : tw, E = { x: P0.x + d2.x * tEnd, y: P0.y + d2.y * tEnd };
+    env.S.shot = { pts: [t.B, P0, E], d: 0, ok: hit != null && hit < tw, done: false, len: dl + tEnd, l1: dl };
+  },
+  hitTest(env, x, y) {
+    const S = env.S, P = env.P;
+    if (P.mode === 'law') { const L = Math.min(env.W, env.H) * .42, a = P.ai * D2R, P0 = { x: env.W * .5, y: env.H * .62 }; const t = { x: P0.x - Math.sin(a) * L, y: P0.y - Math.cos(a) * L }; return Math.hypot(t.x - x, t.y - y) < 34 ? 'torch' : null; }
+    if (P.mode === 'image') { const mx = env.W * .62, k = (mx - 60) / 8.5, O = { x: mx - P.do * k, y: env.H * S.oy }, E = { x: env.W * S.E.x, y: env.H * S.E.y }; if (Math.hypot(O.x - x, O.y - y) < 32) return 'O'; if (Math.hypot(E.x - x, E.y - y) < 32) return 'E'; return null; }
+    const t = SIMS.reflect.tab(env); if (Math.hypot(t.px - x, t.yc - y) < 28) return 'aim'; if (Math.hypot(t.B.x - x, t.B.y - y) < 26) return 'B'; if (Math.hypot(t.T.x - x, t.T.y - y) < 26) return 'T'; return null;
+  },
+  down(env, x, y) { const h = SIMS.reflect.hitTest(env, x, y); env.S.drag = h; return !!h; },
+  hover(env, x, y) { return !!SIMS.reflect.hitTest(env, x, y); },
+  up(env) { env.S.drag = null; },
+  move(env, x, y) {
+    const S = env.S, P = env.P, d = S.drag; if (!d) return;
+    if (d === 'torch') { const P0 = { x: env.W * .5, y: env.H * .62 }; env.set('ai', clamp(Math.round(Math.atan2(-(x - P0.x), -(y - P0.y)) * R2D), 0, 85)); }
+    else if (d === 'O') { const mx = env.W * .62, k = (mx - 60) / 8.5; env.set('do', clamp((mx - x) / k, 1, 8)); S.oy = clamp(y / env.H, .2, .85); }
+    else if (d === 'E') { S.E = { x: clamp(x / env.W, .04, .5), y: clamp(y / env.H, .1, .9) }; }
+    else if (d === 'aim') { const t = SIMS.reflect.tab(env); env.set('aim', clamp((x - t.x0 - t.r) / (t.tw - 2 * t.r), 0, 1)); }
+    else { const t = SIMS.reflect.tab(env); const p = { x: clamp((x - t.x0) / t.tw, .05, .95), y: clamp((y - t.y0) / t.th, .35, .93) }; S[d] = p; S.shot = null; }
+  },
+  readouts(env) {
+    const P = env.P, S = env.S;
+    if (P.mode === 'law') {
+      const phi = P.tilt * D2R, a = P.ai * D2R, d = { x: Math.sin(a), y: Math.cos(a) }, n = { x: -Math.sin(phi), y: Math.cos(phi) }, k = Math.abs(d.x * n.x + d.y * n.y), i = Math.acos(clamp(k, 0, 1)) * R2D;
+      const dr = reflectDir(d, phi), d0 = reflectDir(d, 0), rot = Math.acos(clamp(dr.x * d0.x + dr.y * d0.y, -1, 1)) * R2D, kr = Math.abs(dr.x * n.x + dr.y * n.y), r = Math.acos(clamp(kr, 0, 1)) * R2D;
+      return [['∠i', fix(i, 1) + '°'], ['∠r', fix(r, 1) + '°', 'ok'], ['Reflected ray turned by', fix(rot, 0) + '° (= 2 × tilt of ' + Math.abs(P.tilt) + '°)']];
+    }
+    if (P.mode === 'image') return [['Object distance d_o', fix(P.do) + ' units'], ['Image distance d_i', fix(P.do) + ' units', 'ok'], ['Image is', 'virtual, erect, same size']];
+    if (!S.B || !env.W) return [];
+    const t = SIMS.reflect.tab(env), dx = t.px - t.B.x, dy = t.B.y - t.yc, i = Math.atan2(Math.abs(dx), dy) * R2D, res = S.shot && S.shot.done ? (S.shot.ok ? ['Result', 'Hit!', 'ok'] : ['Result', 'Missed', 'bad']) : ['Result', 'Ready'];
+    return [['∠i', fix(i, 1) + '°'], ['∠r', fix(i, 1) + '°', 'ok'], ['Perfect aim at', Math.round(t.star * 100) + '%'], res];
+  },
+  draw(env, t, dt) {
+    const { g, W, H, P, S } = env; if (!S.B) SIMS.reflect.init(env);
+    if (P.mode === 'law') return SIMS.reflect.drawLaw(env);
+    if (P.mode === 'image') return SIMS.reflect.drawImage(env);
+    SIMS.reflect.drawBank(env, dt || .016);
+  },
+  drawLaw(env) {
+    const { g, W, H, P } = env; gridBg(g, W, H, 40);
+    const P0 = { x: W * .5, y: H * .62 }, phi = P.tilt * D2R, L = Math.min(W, H) * .42, a = P.ai * D2R, d = { x: Math.sin(a), y: Math.cos(a) };
+    const torch = { x: P0.x - d.x * L, y: P0.y - d.y * L }, dr = reflectDir(d, phi), n = { x: -Math.sin(phi), y: Math.cos(phi) }, k = d.x * n.x + d.y * n.y, nIn = k > 0 ? { x: -n.x, y: -n.y } : n;
+    // mirror
+    const mh = W * .36, md = { x: Math.cos(phi), y: Math.sin(phi) };
+    g.save(); g.lineCap = 'round'; g.strokeStyle = '#cfe8ff'; g.lineWidth = 8; g.beginPath(); g.moveTo(P0.x - md.x * mh, P0.y - md.y * mh); g.lineTo(P0.x + md.x * mh, P0.y + md.y * mh); g.stroke();
+    g.strokeStyle = '#6f8bb5'; g.lineWidth = 2; for (let q = -mh; q <= mh; q += 16) { const x = P0.x + md.x * q - nIn.x * 6, y = P0.y + md.y * q - nIn.y * 6; g.beginPath(); g.moveTo(x, y); g.lineTo(x - nIn.x * 12 + md.x * 8, y - nIn.y * 12 + md.y * 8); g.stroke(); } g.restore();
+    line(g, P0.x - nIn.x * L * .3, P0.y - nIn.y * L * .3, P0.x + nIn.x * L * .95, P0.y + nIn.y * L * .95, '#ffffff', 1.5, [6, 5], .8); text(g, 'normal', P0.x + nIn.x * L * .95 + 4, P0.y + nIn.y * L * .95 - 6, '#fff', 12);
+    glow(g, torch.x, torch.y, P0.x, P0.y, '#ff4d4d', 3.2); glow(g, P0.x, P0.y, P0.x + dr.x * L, P0.y + dr.y * L, '#ff4d4d', 3.2, .95);
+    // torch
+    g.save(); g.translate(torch.x, torch.y); g.rotate(Math.atan2(d.y, d.x)); rr(g, -46, -11, 46, 22, 6); g.fillStyle = '#3b4468'; g.fill(); g.strokeStyle = '#8fa3d8'; g.lineWidth = 2; g.stroke(); dot(g, 0, 0, 7, '#ffd0d0'); g.restore();
+    text(g, 'drag the torch', torch.x, torch.y - 26, '#9db0d6', 12, 'center');
+    if (P.ribbon) {
+      const an = Math.atan2(nIn.y, nIn.x), ai = Math.atan2(-d.y, -d.x), ar = Math.atan2(dr.y, dr.x); const kk = Math.abs(d.x * n.x + d.y * n.y), i = Math.acos(clamp(kk, 0, 1)) * R2D;
+      angleArc(g, P0.x, P0.y, 64, an, ai, '#ffd23d', 'i ' + fix(i, 0) + '°'); angleArc(g, P0.x, P0.y, 64, an, ar, '#4de3d0', 'r ' + fix(i, 0) + '°');
+    }
+    text(g, 'Incident ray', torch.x + 30, torch.y + 44, '#ff9a9a', 13); text(g, 'Reflected ray', P0.x + dr.x * L * .7, P0.y + dr.y * L * .7 - 14, '#ff9a9a', 13, 'center');
+  },
+  drawImage(env) {
+    const { g, W, H, P, S } = env; gridBg(g, W, H, 40);
+    const mx = W * .62, k = (mx - 60) / 8.5, O = { x: mx - P.do * k, y: H * S.oy }, E = { x: W * S.E.x, y: H * S.E.y }, I = { x: 2 * mx - O.x, y: O.y };
+    const mg = g.createLinearGradient(mx - 8, 0, mx + 8, 0); mg.addColorStop(0, '#e9f6ff'); mg.addColorStop(1, '#4b6d94'); g.fillStyle = mg; g.fillRect(mx - 4, H * .06, 8, H * .88);
+    g.strokeStyle = '#6f8bb5'; g.lineWidth = 2; for (let y = H * .06; y < H * .94; y += 14) { g.beginPath(); g.moveTo(mx + 4, y); g.lineTo(mx + 14, y + 10); g.stroke(); }
+    line(g, O.x, O.y + 40, I.x, O.y + 40, '#ffd23d', 1.5, [3, 4]); arrow(g, mx, O.y + 40, O.x, O.y + 40, '#ffd23d', 2); arrow(g, mx, O.y + 40, I.x, O.y + 40, '#ffd23d', 2);
+    text(g, 'd_o = ' + fix(P.do), (O.x + mx) / 2, O.y + 60, '#ffd23d', 13, 'center', 600); text(g, 'd_i = ' + fix(P.do), (I.x + mx) / 2, O.y + 60, '#ffd23d', 13, 'center', 600);
+    const refRay = hy => { const dl = Math.hypot(mx - O.x, hy - O.y), din = { x: (mx - O.x) / dl, y: (hy - O.y) / dl }; return { din, dout: { x: -din.x, y: din.y } }; };
+    if (P.rays3) [-1, 1].forEach(sg => { const hy = O.y + sg * H * .22; const r = refRay(hy); glow(g, O.x, O.y, mx, hy, '#ff9a4d', 2, .7); const tt = (mx - 0) / Math.max(.2, -r.dout.x); glow(g, mx, hy, mx + r.dout.x * tt, hy + r.dout.y * tt, '#ff9a4d', 2, .7); line(g, mx, hy, I.x, I.y, '#ff5ad1', 1.6, [6, 5], .9); });
+    const tE = (mx - E.x) / (I.x - E.x), py = E.y + tE * (I.y - E.y), okp = py > H * .06 && py < H * .94;
+    if (okp) { glow(g, O.x, O.y, mx, py, '#ffd23d', 3, .95); glow(g, mx, py, E.x, E.y, '#ffd23d', 3, .95); line(g, mx, py, I.x, I.y, '#ff5ad1', 2, [7, 5]); line(g, mx - 90, py, mx + 90, py, '#fff', 1.2, [4, 4], .6); angleArc(g, mx, py, 46, Math.PI, Math.atan2(O.y - py, O.x - mx), '#ffd23d', 'i'); angleArc(g, mx, py, 62, Math.PI, Math.atan2(E.y - py, E.x - mx), '#4de3d0', 'r'); }
+    candle(g, O.x, O.y, false); candle(g, I.x, I.y, true); text(g, 'Object', O.x, O.y - 36, '#eaf1ff', 13, 'center'); text(g, 'Image (virtual)', I.x, I.y - 36, '#ff5ad1', 13, 'center');
+    dot(g, E.x, E.y, 15, '#f2d6b3', '#8a6a3c'); dot(g, E.x + 4, E.y, 4, '#001'); text(g, 'Eye (drag)', E.x, E.y - 22, '#eaf1ff', 12, 'center');
+    text(g, 'The eye sees the image where the reflected rays seem to come from.', 12, H - 14, '#9db0d6', 13);
+  },
+  drawBank(env, dt) {
+    const { g, W, H, P, S } = env, t = SIMS.reflect.tab(env), r = t.r, carrom = P.theme === 'carrom';
+    g.fillStyle = carrom ? '#5a3b1c' : '#4a2a14'; rr(g, t.x0 - 14, t.y0 - 14, t.tw + 28, t.th + 28, 14); g.fill();
+    g.fillStyle = carrom ? '#e9c98b' : '#0e8f4c'; g.fillRect(t.x0, t.y0, t.tw, t.th);
+    if (carrom) { g.strokeStyle = '#7a4a1a'; g.lineWidth = 2; g.strokeRect(t.x0 + 30, t.y0 + 30, t.tw - 60, t.th - 60); g.beginPath(); g.arc(t.x0 + t.tw / 2, t.y0 + t.th / 2, Math.min(t.tw, t.th) * .12, 0, TAU); g.stroke(); [[t.x0, t.y0], [t.x1, t.y0], [t.x0, t.y1], [t.x1, t.y1]].forEach(p => dot(g, p[0], p[1], r * 1.5, '#222')); }
+    else { [[t.x0, t.y0], [t.x1, t.y0], [t.x0, t.y1], [t.x1, t.y1]].forEach(p => dot(g, p[0], p[1], r * 1.5, '#050505')); }
+    line(g, t.x0, t.yc - r + 2, t.x1, t.yc - r + 2, '#ffffff', 2, [], .25);
+    const P0 = { x: t.px, y: t.yc }, B = t.B, T = t.T;
+    // mirror trick
+    if (P.trick) { const Tp = { x: T.x, y: 2 * t.yc - T.y }; if (Tp.y > t.y0 - 70) { dot(g, Tp.x, Tp.y, r, 'rgba(255,90,209,.25)', '#ff5ad1'); text(g, 'image of target', Tp.x + r + 6, Tp.y + 4, '#ff5ad1', 12); line(g, B.x, B.y, Tp.x, Tp.y, '#ff5ad1', 1.6, [7, 5]); line(g, t.x0, t.yc, t.x1, t.yc, '#ff5ad1', 1.2, [3, 4], .8); } }
+    // aim path preview
+    const dl = Math.hypot(P0.x - B.x, P0.y - B.y), d1 = { x: (P0.x - B.x) / dl, y: (P0.y - B.y) / dl }, d2 = { x: d1.x, y: -d1.y };
+    if (!S.shot || !S.shot.done) { line(g, B.x, B.y, P0.x, P0.y, '#fff', 1.4, [6, 6], .6); line(g, P0.x, P0.y, P0.x + d2.x * 90, P0.y + d2.y * 90, '#fff', 1.4, [6, 6], .45); }
+    line(g, P0.x, P0.y, P0.x, P0.y + 80, '#fff', 1.2, [4, 4], .7);
+    const an = Math.PI / 2, ai = Math.atan2(-d1.y, -d1.x), ar = Math.atan2(d2.y, d2.x), ang = Math.atan2(Math.abs(d1.x), d1.y) * R2D;
+    angleArc(g, P0.x, P0.y, 40, an, ai, '#ffd23d', 'i'); angleArc(g, P0.x, P0.y, 40, an, ar, '#4de3d0', 'r');
+    g.save(); g.fillStyle = '#ffd23d'; g.beginPath(); g.moveTo(P0.x, t.yc - r - 6); g.lineTo(P0.x - 9, t.yc - r - 20); g.lineTo(P0.x + 9, t.yc - r - 20); g.closePath(); g.fill(); g.restore();
+    // shot
+    let bp = { x: B.x, y: B.y };
+    if (S.shot) {
+      const sh = S.shot; if (!sh.done) { sh.d += 520 * dt; if (sh.d >= sh.len) { sh.d = sh.len; sh.done = true; env.say(sh.ok ? 'Goal! ∠i = ∠r gave a perfect bank shot.' : 'Missed. Move the aim point or use the mirror trick.', sh.ok ? 'good' : 'bad'); if (sh.ok) env.goal(); } }
+      const p = sh.pts, s1 = sh.l1; if (sh.d <= s1) { const q = sh.d / s1; bp = { x: lerp(p[0].x, p[1].x, q), y: lerp(p[0].y, p[1].y, q) }; } else { const q = (sh.d - s1) / (sh.len - s1); bp = { x: lerp(p[1].x, p[2].x, q), y: lerp(p[1].y, p[2].y, q) }; }
+      glow(g, p[0].x, p[0].y, p[1].x, p[1].y, '#ffe9a8', 2.5, .8); const q2 = sh.d > s1 ? bp : p[1]; glow(g, p[1].x, p[1].y, q2.x, q2.y, '#ffe9a8', 2.5, .8);
+    }
+    dot(g, T.x, T.y, r, '#e63946', '#fff'); text(g, 'target', T.x, T.y + r + 16, '#fff', 12, 'center');
+    dot(g, bp.x, bp.y, r, '#f4f4f4', '#999'); if (!S.shot) text(g, 'striker (drag)', B.x, B.y + r + 16, '#fff', 12, 'center');
+    text(g, 'cushion = mirror: drag the yellow marker', t.x0 + 6, t.y0 - 20, '#9db0d6', 12);
+  }
+};
+/* =====================================================================
+   ACT 6  Light maze (steering a beam with mirrors)
+   ===================================================================== */
+const MAZE = [
+  { name: 'Level 1: Over the wall', laser: { x: 12, y: 75, a: 0 }, target: { x: 140, y: 15, r: 5 }, blocks: [{ x: 78, y: 35, w: 8, h: 55 }], eye: false,
+    mirrors: [{ x: 60, y: 75, a: 0, sol: -45, mv: false }, { x: 60, y: 15, a: 90, sol: -45, mv: false }], tip: 'Make both mirrors slant like "/" (−45°).' },
+  { name: 'Level 2: Through the keyhole', laser: { x: 12, y: 20, a: 0 }, target: { x: 123, y: 70, r: 7 }, blocks: [{ x: 96, y: -2, w: 6, h: 38 }, { x: 96, y: 54, w: 6, h: 38 }], eye: true,
+    mirrors: [{ x: 73, y: 20, a: 60, sol: 22.5, mv: false }], tip: 'One mirror, tiny angle changes. Aim for about 22.5°.' },
+  { name: 'Level 3: Two walls', laser: { x: 10, y: 80, a: 0 }, target: { x: 140, y: 50, r: 5 }, blocks: [{ x: 45, y: -2, w: 8, h: 70 }, { x: 105, y: 22, w: 8, h: 70 }], eye: false,
+    mirrors: [{ x: 80, y: 80, a: 20, sol: -45, mv: true }, { x: 80, y: 10, a: -80, sol: -45, mv: true }, { x: 140, y: 10, a: 0, sol: 45, mv: true }], tip: 'Up, across, then down. Try −45°, −45°, 45°. You may also drag mirrors.' }
+];
+function traceBeam(Lv, mirrors) {
+  let p = { x: Lv.laser.x, y: Lv.laser.y }, a = Lv.laser.a * D2R, d = { x: Math.cos(a), y: Math.sin(a) }, pts = [{ x: p.x, y: p.y }], hit = false;
+  const segs = []; Lv.blocks.forEach(b => segs.push([b.x, b.y, b.x + b.w, b.y], [b.x + b.w, b.y, b.x + b.w, b.y + b.h], [b.x + b.w, b.y + b.h, b.x, b.y + b.h], [b.x, b.y + b.h, b.x, b.y]));
+  segs.push([0, 0, 160, 0], [160, 0, 160, 90], [160, 90, 0, 90], [0, 90, 0, 0]);
+  let bounces = 0;
+  for (let k = 0; k < 16; k++) {
+    let best = 1e9, kind = null, hm = null;
+    segs.forEach(s => { const t = raySeg(p, d, s); if (t != null && t < best) { best = t; kind = 'wall'; } });
+    mirrors.forEach(m => { const hx = Math.cos(m.a * D2R) * 8, hy = Math.sin(m.a * D2R) * 8, t = raySeg(p, d, [m.x - hx, m.y - hy, m.x + hx, m.y + hy]); if (t != null && t < best) { best = t; kind = 'mirror'; hm = m; } });
+    const tt = rayCircle(p, d, Lv.target, Lv.target.r); if (tt != null && tt < best) { best = tt; kind = 'target'; }
+    p = { x: p.x + d.x * best, y: p.y + d.y * best }; pts.push({ x: p.x, y: p.y });
+    if (kind === 'target') { hit = true; break; } if (kind !== 'mirror') break;
+    d = reflectDir(d, hm.a * D2R); bounces++;
+  }
+  return { pts, hit, bounces };
+}
+SIMS.maze = {
+  controls: [
+    { type: 'seg', id: 'level', label: 'Level', val: 0, wide: true, opts: [[0, 'Level 1'], [1, 'Level 2'], [2, 'Level 3']] },
+    { type: 'range', id: 'ang', label: 'Selected mirror angle', min: -90, max: 90, step: .5, val: 0, unit: '°', dec: 1 },
+    { type: 'btn', label: '⟲ Turn −5°', fn: e => e.set('ang', clamp(e.P.ang - 5, -90, 90)) },
+    { type: 'btn', label: '⟳ Turn +5°', fn: e => e.set('ang', clamp(e.P.ang + 5, -90, 90)) },
+    { type: 'btn', label: '⏭ Next mirror', fn: e => { const S = e.S; S.sel = (S.sel + 1) % S.mirrors.length; e.set('ang', S.mirrors[S.sel].a); } },
+    { type: 'check', id: 'hint', label: 'Show hint (green dashed mirrors)', val: false }
+  ],
+  load(env, i) { const L = MAZE[i], S = env.S; S.L = L; S.mirrors = L.mirrors.map(m => ({ ...m })); S.sel = 0; S.won = false; S.mdrag = null; env.P.ang = S.mirrors[0].a; env.ctl.ang && env.ctl.ang.set(S.mirrors[0].a); },
+  init(env) { SIMS.maze.load(env, env.P.level || 0); },
+  onChange(env, id, v) {
+    if (id === 'level') { SIMS.maze.load(env, +v); env.say(MAZE[+v].name); }
+    if (id === 'ang' && env.S.mirrors) env.S.mirrors[env.S.sel].a = v;
+  },
+  lay(env) { const sc = Math.min(env.W / 160, env.H / 90); return { sc, ox: (env.W - 160 * sc) / 2, oy: (env.H - 90 * sc) / 2 }; },
+  toW(env, x, y) { const l = SIMS.maze.lay(env); return { x: (x - l.ox) / l.sc, y: (y - l.oy) / l.sc }; },
+  near(env, x, y) { const w = SIMS.maze.toW(env, x, y); let b = -1, bd = 12; env.S.mirrors.forEach((m, i) => { const d = Math.hypot(m.x - w.x, m.y - w.y); if (d < bd) { bd = d; b = i; } }); return b; },
+  down(env, x, y) { const i = SIMS.maze.near(env, x, y); if (i < 0) return false; env.S.sel = i; env.set('ang', env.S.mirrors[i].a); env.S.mdrag = env.S.mirrors[i].mv ? i : null; return true; },
+  move(env, x, y) { const i = env.S.mdrag; if (i == null) return; const w = SIMS.maze.toW(env, x, y), m = env.S.mirrors[i]; m.x = clamp(w.x, 10, 150); m.y = clamp(w.y, 10, 80); },
+  hover(env, x, y) { return SIMS.maze.near(env, x, y) >= 0; },
+  readouts(env) { const S = env.S; if (!S.L) return []; const tr = traceBeam(S.L, S.mirrors); return [['Mirror angle', fix(S.mirrors[S.sel].a, 1) + '°'], ['Reflections', tr.bounces], ['Target', tr.hit ? 'Hit ✓' : 'Not yet', tr.hit ? 'ok' : '']]; },
+  draw(env) {
+    const { g, W, H, P, S } = env, l = SIMS.maze.lay(env), X = x => l.ox + x * l.sc, Y = y => l.oy + y * l.sc, Lv = S.L; if (!Lv) return;
+    g.fillStyle = '#070d1f'; g.fillRect(X(0), Y(0), 160 * l.sc, 90 * l.sc); gridBg(g, W, H, l.sc * 10); g.strokeStyle = '#25365f'; g.lineWidth = 3; g.strokeRect(X(0), Y(0), 160 * l.sc, 90 * l.sc);
+    Lv.blocks.forEach(b => { g.fillStyle = '#2a3558'; g.fillRect(X(b.x), Y(b.y), b.w * l.sc, b.h * l.sc); g.strokeStyle = '#4b5d96'; g.lineWidth = 1.5; for (let q = 0; q < b.h; q += 5) { g.beginPath(); g.moveTo(X(b.x), Y(b.y + q)); g.lineTo(X(b.x + b.w), Y(b.y + q + 4)); g.stroke(); } g.strokeRect(X(b.x), Y(b.y), b.w * l.sc, b.h * l.sc); });
+    const tr = traceBeam(Lv, S.mirrors);
+    if (tr.hit && !S.won) { S.won = true; env.say('Target hit! ' + (S.L.eye ? 'Just like laser eye surgery.' : 'Mirrors steered the beam.'), 'good'); env.goal(); } if (!tr.hit) S.won = false;
+    // target
+    const tg = Lv.target, pulse = tr.hit ? 1 + Math.sin(env.t * 8) * .12 : 1;
+    if (Lv.eye) { g.fillStyle = 'rgba(255,255,255,.08)'; g.beginPath(); g.ellipse(X(tg.x), Y(tg.y), 13 * l.sc, 9 * l.sc, 0, 0, TAU); g.fill(); g.strokeStyle = '#9db0d6'; g.lineWidth = 2; g.stroke(); text(g, 'retina spot', X(tg.x), Y(tg.y) - 12 * l.sc, '#9db0d6', 12, 'center'); }
+    [[1, '#ff4d4d'], [.6, '#fff'], [.3, '#ff4d4d']].forEach(q => dot(g, X(tg.x), Y(tg.y), tg.r * l.sc * q[0] * pulse, q[1]));
+    if (tr.hit) { g.save(); g.shadowColor = '#5ee79a'; g.shadowBlur = 24; g.strokeStyle = '#5ee79a'; g.lineWidth = 3; g.beginPath(); g.arc(X(tg.x), Y(tg.y), tg.r * l.sc * 1.5, 0, TAU); g.stroke(); g.restore(); }
+    // laser
+    g.save(); g.translate(X(Lv.laser.x), Y(Lv.laser.y)); g.rotate(Lv.laser.a * D2R); rr(g, -18 * l.sc * .8, -5, 18 * l.sc * .8, 10, 3); g.fillStyle = '#3b4468'; g.fill(); g.strokeStyle = '#8fa3d8'; g.stroke(); g.restore();
+    // hints
+    if (P.hint) S.mirrors.forEach(m => { const a = m.sol * D2R, hx = Math.cos(a) * 8 * l.sc, hy = Math.sin(a) * 8 * l.sc; line(g, X(m.x) - hx, Y(m.y) - hy, X(m.x) + hx, Y(m.y) + hy, '#5ee79a', 3, [5, 4], .9); });
+    // beam
+    for (let i = 0; i < tr.pts.length - 1; i++) glow(g, X(tr.pts[i].x), Y(tr.pts[i].y), X(tr.pts[i + 1].x), Y(tr.pts[i + 1].y), '#ff4d4d', 3);
+    // mirrors
+    S.mirrors.forEach((m, i) => {
+      const a = m.a * D2R, hx = Math.cos(a) * 8 * l.sc, hy = Math.sin(a) * 8 * l.sc;
+      if (i === S.sel) { g.save(); g.strokeStyle = '#ffd23d'; g.lineWidth = 12; g.globalAlpha = .35; g.lineCap = 'round'; g.beginPath(); g.moveTo(X(m.x) - hx, Y(m.y) - hy); g.lineTo(X(m.x) + hx, Y(m.y) + hy); g.stroke(); g.restore(); }
+      line(g, X(m.x) - hx, Y(m.y) - hy, X(m.x) + hx, Y(m.y) + hy, '#dff3ff', 5); dot(g, X(m.x), Y(m.y), 4, m.mv ? '#ffd23d' : '#8fa3d8');
+      text(g, fix(m.a, 0) + '°', X(m.x) + 12, Y(m.y) - 12, i === S.sel ? '#ffd23d' : '#9db0d6', 12, 'left', 600);
+    });
+    text(g, Lv.name + (Lv.tip ? '   |   ' + Lv.tip : ''), 10, 18, '#9db0d6', 12);
+  }
+};
+
+/* =====================================================================
+   ACT 7  Periscope (two parallel 45° mirrors) with a Three.js 3D model
+   ===================================================================== */
+function reflUp(d, m) { const n = { x: Math.sin(m), y: Math.cos(m) }, k = d.x * n.x + d.y * n.y; return { x: d.x - 2 * k * n.x, y: d.y - 2 * k * n.y }; }
+SIMS.peri = {
+  controls: [
+    { type: 'seg', id: 'scene', label: 'Where are you?', val: 'crowd', wide: true, opts: [['crowd', '🎤 Concert crowd'], ['sub', '🚢 Submarine']] },
+    { type: 'range', id: 'Lc', label: 'Tube length', min: .2, max: 1.4, step: .02, val: .9, unit: ' m', dec: 2, when: P => P.scene === 'crowd' },
+    { type: 'range', id: 'Ls', label: 'Pipe length above the hull (not to scale)', min: 2.5, max: 6.5, step: .1, val: 4, unit: ' m', when: P => P.scene === 'sub' },
+    { type: 'range', id: 'm1', label: 'Top mirror angle', min: 30, max: 60, step: .5, val: 45, unit: '°', dec: 1 },
+    { type: 'range', id: 'm2', label: 'Bottom mirror angle', min: 30, max: 60, step: .5, val: 45, unit: '°', dec: 1 },
+    { type: 'btn', label: 'Set both mirrors to 45°', fn: e => { e.set('m1', 45); e.set('m2', 45); } },
+    { type: 'btn', label: '↔ Turn top mirror by 5°', fn: e => e.set('m1', e.P.m1 + 5 > 60 ? 40 : e.P.m1 + 5) }
+  ],
+  calc(P) {
+    const crowd = P.scene === 'crowd', yb = crowd ? 1.5 : -3, L = crowd ? P.Lc : P.Ls, yt = yb + L, obs = crowd ? 1.9 : 0, xe = 1.3, m1 = P.m1 * D2R, m2 = P.m2 * D2R;
+    const R = { yb, yt, L, obs, xe, crowd, status: 'seen', eps: 0 }; let pts = [{ x: -5, y: yt }];
+    if (yt <= obs + .02) { pts.push({ x: crowd ? -.7 : -.3, y: yt }); R.status = 'blocked'; R.pts = pts; return R; }
+    pts.push({ x: 0, y: yt }); const d1 = reflUp({ x: 1, y: 0 }, m1);
+    if (d1.y > -.05) { pts.push({ x: d1.x * 3, y: yt + d1.y * 3 }); R.status = 'lost'; R.pts = pts; return R; }
+    const ld = { x: Math.cos(m2), y: -Math.sin(m2) }, den = d1.y - d1.x * ld.y / ld.x, t = (yb - yt) / den, s = t * d1.x / ld.x;
+    if (!(t > 0) || Math.abs(s) > .283) { const tt = (yb - .35 - yt) / d1.y; pts.push({ x: d1.x * tt, y: yt + d1.y * tt }); R.status = 'miss'; R.pts = pts; return R; }
+    const Q = { x: d1.x * t, y: yt + d1.y * t }; pts.push(Q); const d2 = reflUp(d1, m2);
+    if (d2.x < .05) { pts.push({ x: Q.x + d2.x * 2, y: Q.y + d2.y * 2 }); R.status = 'lost'; R.pts = pts; return R; }
+    R.eps = Math.atan2(d2.y, d2.x) * R2D; const yw = Q.y + (.2 - Q.x) / d2.x * d2.y;
+    if (Math.abs(yw - yb) > .18) { pts.push({ x: .2, y: yw }); R.status = 'wall'; R.pts = pts; return R; }
+    const ye = Q.y + (xe - Q.x) / d2.x * d2.y; pts.push({ x: xe, y: ye }); R.pts = pts; R.status = Math.abs(ye - yb) < .12 ? 'seen' : 'offeye'; return R;
+  },
+  MSG: { seen: 'You can see over the obstacle!', blocked: 'The top window is hidden behind the crowd or under the water.', lost: 'The light is sent the wrong way.', miss: 'The light misses the lower mirror.', wall: 'The light hits the tube wall.', offeye: 'The light misses your eye.' },
+  readouts(env) { const r = SIMS.peri.calc(env.P), ok = r.status === 'seen'; return [['Top window height', fix(r.yt, 2) + ' m'], [r.crowd ? 'Crowd height' : 'Sea level', fix(r.obs, 1) + ' m'], ['Result', SIMS.peri.MSG[r.status], ok ? 'ok' : 'bad']]; },
+  onChange(env) { if (env.d3) env.d3.dirty = true; },
+  draw(env) {
+    const { g, W, H, P } = env, r = SIMS.peri.calc(P), crowd = r.crowd;
+    const xmin = -5.4, xmax = 2.4, ymin = crowd ? -.2 : -4.7, ymax = crowd ? 3.5 : 3.8, s = Math.min(W / (xmax - xmin), H / (ymax - ymin)) * .98, pX = (W - s * (xmax - xmin)) / 2, pY = (H - s * (ymax - ymin)) / 2;
+    const X = x => (x - xmin) * s + pX, Y = y => H - ((y - ymin) * s + pY);
+    const sky = g.createLinearGradient(0, 0, 0, H); sky.addColorStop(0, '#0a1330'); sky.addColorStop(1, '#17285a'); g.fillStyle = sky; g.fillRect(0, 0, W, H);
+    if (crowd) {
+      g.fillStyle = '#3a3226'; g.fillRect(0, Y(0), W, H - Y(0)); g.fillStyle = '#4a3b8a'; g.fillRect(X(-5.4), Y(.5), 1.7 * s, .5 * s); text(g, 'stage', X(-4.55), Y(.5) + 18, '#cfc6ff', 12, 'center');
+      dot(g, X(-4.5), Y(1.9), .16 * s, '#ffd9a8'); g.fillStyle = '#e6567a'; g.fillRect(X(-4.6), Y(1.75), .2 * s, 1.25 * s);
+      for (let i = 0; i < 7; i++) { const x = -2.5 + i * .27; g.fillStyle = '#243a6b'; g.fillRect(X(x) - .1 * s, Y(1.7), .2 * s, 1.7 * s); dot(g, X(x), Y(1.8), .13 * s, '#d9b48a'); }
+      text(g, 'crowd (1.9 m)', X(-1.7), Y(2.15), '#9db0d6', 12, 'center');
+      line(g, X(r.xe + .2), Y(r.yb), X(-.8), Y(r.yb), '#ff6b7a', 1.5, [6, 5]); text(g, 'straight view blocked', X(.9), Y(r.yb) - 32, '#ff9aa6', 12, 'center');
+    } else {
+      const wg = g.createLinearGradient(0, Y(0), 0, H); wg.addColorStop(0, '#1b6ca8'); wg.addColorStop(1, '#0a2a52'); g.fillStyle = wg; g.fillRect(0, Y(0), W, H - Y(0));
+      line(g, 0, Y(0), W, Y(0), '#bfeaff', 2); text(g, 'sea level', 10, Y(0) - 8, '#bfeaff', 12);
+      g.fillStyle = '#6b7385'; rr(g, X(-1.4), Y(-2.4), 3.6 * s, 1.7 * s, 30); g.fill(); text(g, 'submarine (deep underwater)', X(.4), Y(-4.1), '#cfe3ff', 12, 'center');
+      g.fillStyle = '#8a8f9c'; g.fillRect(X(-5), Y(.35), 1.8 * s, .35 * s); g.fillRect(X(-4.3), Y(.7), .5 * s, .35 * s); g.fillStyle = '#c9534a'; g.fillRect(X(-4.1), Y(1.0), .2 * s, .3 * s); text(g, 'enemy ship', X(-4.1), Y(1.55), '#9db0d6', 12, 'center');
+    }
+    // periscope body
+    g.fillStyle = crowd ? 'rgba(201,165,107,.35)' : 'rgba(160,175,200,.35)'; g.strokeStyle = crowd ? '#c9a56b' : '#a8b8d8'; g.lineWidth = 2.5;
+    [[-.2, r.yb - .2, .4, r.L + .4], [-.45, r.yt - .18, .65, .36], [-.2, r.yb - .18, .65, .36]].forEach(b => { g.fillRect(X(b[0]), Y(b[1] + b[3]), b[2] * s, b[3] * s); g.strokeRect(X(b[0]), Y(b[1] + b[3]), b[2] * s, b[3] * s); });
+    // mirrors
+    [[r.yt, P.m1 * D2R], [r.yb, P.m2 * D2R]].forEach(m => { const hx = Math.cos(m[1]) * .283 * s, hy = Math.sin(m[1]) * .283 * s; line(g, X(0) - hx, Y(m[0]) - hy, X(0) + hx, Y(m[0]) + hy, '#dff3ff', 5); });
+    // ray
+    for (let i = 0; i < r.pts.length - 1; i++) glow(g, X(r.pts[i].x), Y(r.pts[i].y), X(r.pts[i + 1].x), Y(r.pts[i + 1].y), '#ff4d4d', 3);
+    // viewer
+    dot(g, X(r.xe + .22), Y(r.yb), .17 * s, '#f2d6b3', '#8a6a3c'); dot(g, X(r.xe + .12), Y(r.yb) - 1, 3.5, '#001'); line(g, X(r.xe + .22), Y(r.yb) + .17 * s, X(r.xe + .22), Y(crowd ? 0 : r.yb - 1.2), '#cfe3ff', 6);
+    text(g, 'you', X(r.xe + .22), Y(r.yb) - .3 * s, '#eaf1ff', 12, 'center');
+    // what you see
+    if (W > 520) {
+      const bx = W - 190, by = 12, bw = 178, bh = 118; rr(g, bx, by, bw, bh, 12); g.fillStyle = '#050813'; g.fill(); g.strokeStyle = '#25365f'; g.stroke();
+      g.save(); rr(g, bx + 5, by + 24, bw - 10, bh - 30, 8); g.clip();
+      if (r.status === 'seen') {
+        const off = clamp(r.eps * 5, -60, 60), sg = g.createLinearGradient(0, by, 0, by + bh); sg.addColorStop(0, '#3a6fc4'); sg.addColorStop(1, '#a9d4ff'); g.fillStyle = sg; g.fillRect(bx, by, bw, bh);
+        g.fillStyle = crowd ? '#4a3b8a' : '#1b6ca8'; g.fillRect(bx, by + 88, bw, 40); g.fillStyle = crowd ? '#ffd9a8' : '#8a8f9c'; if (crowd) { g.beginPath(); g.arc(bx + 88 + off, by + 74, 9, 0, TAU); g.fill(); g.fillStyle = '#e6567a'; g.fillRect(bx + 82 + off, by + 83, 12, 28); } else { g.fillRect(bx + 50 + off, by + 78, 70, 14); g.fillRect(bx + 80 + off, by + 66, 20, 14); }
+      } else text(g, 'no image', bx + bw / 2, by + 78, '#9db0d6', 14, 'center');
+      g.restore(); text(g, 'What you see', bx + bw / 2, by + 17, '#9db0d6', 12, 'center');
+    }
+  },
+  /* ----- Three.js 3D view ----- */
+  init3D(env, div) {
+    div.innerHTML = '';
+    const fb = m => { div.innerHTML = '<div class="fallback">' + m + '</div>'; };
+    if (typeof THREE === 'undefined') { fb('The 3D view needs an internet connection to load Three.js. The 2D diagram above shows the same physics.'); return; }
+    try {
+      const R = new THREE.WebGLRenderer({ antialias: true, alpha: true }); R.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2)); div.appendChild(R.domElement); R.domElement.style.cssText = 'width:100%;height:100%;display:block;touch-action:none;cursor:grab';
+      const sc = new THREE.Scene(), cam = new THREE.PerspectiveCamera(40, 1, .1, 100); sc.add(new THREE.AmbientLight(0xffffff, .75)); const dl = new THREE.DirectionalLight(0xffffff, .8); dl.position.set(3, 6, 5); sc.add(dl);
+      const grp = new THREE.Group(); sc.add(grp); const d3 = { R, sc, cam, grp, yaw: .65, pitch: .22, dirty: true, auto: true, w: 0, h: 0 }; env.d3 = d3;
+      let drag = null; const cv = R.domElement;
+      cv.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY }; d3.auto = false; cv.setPointerCapture(e.pointerId); });
+      cv.addEventListener('pointermove', e => { if (!drag) return; d3.yaw -= (e.clientX - drag.x) * .008; d3.pitch = clamp(d3.pitch + (e.clientY - drag.y) * .006, -.2, 1.2); drag = { x: e.clientX, y: e.clientY }; });
+      const upf = () => { drag = null; }; cv.addEventListener('pointerup', upf); cv.addEventListener('pointercancel', upf);
+      const hint = el('div', 'msg show', 'Drag to rotate the 3D periscope'); hint.style.cssText = 'position:absolute;top:10px;bottom:auto;left:50%;font-size:.8rem;padding:4px 12px;'; div.appendChild(hint);
+    } catch (err) { env.d3 = null; fb('3D graphics are not available on this device. The 2D diagram above shows the same physics.'); }
+  },
+  rebuild(env) {
+    const d3 = env.d3, grp = d3.grp, P = env.P, r = SIMS.peri.calc(P);
+    while (grp.children.length) { const o = grp.children[0]; grp.remove(o); o.traverse(c => { if (c.geometry) c.geometry.dispose(); if (c.material) c.material.dispose(); }); }
+    const mat = (c, o) => new THREE.MeshStandardMaterial({ color: c, transparent: true, opacity: o, roughness: .6, metalness: .1, side: THREE.DoubleSide });
+    const box = (w, h, d, x, y, z, c, o) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(c, o)); m.position.set(x, y, z); m.add(new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry), new THREE.LineBasicMaterial({ color: 0xcfe3ff }))); grp.add(m); return m; };
+    const tubeC = r.crowd ? 0xc9a56b : 0x9fb0cc;
+    box(.4, r.L + .4, .4, 0, (r.yt + r.yb) / 2, 0, tubeC, .3); box(.65, .36, .4, -.125, r.yt, 0, tubeC, .3); box(.65, .36, .4, .125, r.yb, 0, tubeC, .3);
+    [[r.yt, P.m1], [r.yb, P.m2]].forEach(m => { const mm = new THREE.Mesh(new THREE.BoxGeometry(.566, .02, .38), new THREE.MeshStandardMaterial({ color: 0xdff3ff, metalness: 1, roughness: .08, emissive: 0x335577 })); mm.position.set(0, m[0], 0); mm.rotation.z = -m[1] * D2R; grp.add(mm); });
+    const sphere = (rad, x, y, z, c) => { const m = new THREE.Mesh(new THREE.SphereGeometry(rad, 16, 12), new THREE.MeshStandardMaterial({ color: c })); m.position.set(x, y, z); grp.add(m); return m; };
+    const cyl = (rad, h, x, y, z, c) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(rad, rad, h, 12), new THREE.MeshStandardMaterial({ color: c })); m.position.set(x, y, z); grp.add(m); return m; };
+    if (r.crowd) {
+      const gr = new THREE.GridHelper(14, 14, 0x4b5d96, 0x25365f); gr.position.y = 0; grp.add(gr);
+      for (let i = 0; i < 14; i++) { const x = -2.4 + (i % 7) * .27, z = -.5 + Math.floor(i / 7) * .9 - .2; cyl(.11, 1.7, x, .85, z, 0x243a6b); sphere(.13, x, 1.82, z, 0xd9b48a); }
+      box(1.8, .5, 2.4, -4.8, .25, 0, 0x4a3b8a, .9); cyl(.08, 1.3, -4.8, 1.15, 0, 0xe6567a); sphere(.15, -4.8, 1.9, 0, 0xffd9a8);
+    } else {
+      const w = new THREE.Mesh(new THREE.PlaneGeometry(16, 8), new THREE.MeshStandardMaterial({ color: 0x1b6ca8, transparent: true, opacity: .3, side: THREE.DoubleSide })); w.rotation.x = -Math.PI / 2; grp.add(w);
+      box(3.6, 1.7, 1.8, .4, -3.3, 0, 0x6b7385, .9); box(2, .4, .9, -4.3, .2, 0, 0x8a8f9c, .95); box(.5, .4, .5, -4, .6, 0, 0xc9534a, .95);
+    }
+    sphere(.07, r.xe, r.yb, 0, 0xffffff); sphere(.15, r.xe + .25, r.yb, 0, 0xf2d6b3);
+    for (let i = 0; i < r.pts.length - 1; i++) {
+      const a = r.pts[i], b = r.pts[i + 1], len = Math.hypot(b.x - a.x, b.y - a.y); if (len < 1e-3) continue;
+      const seg = new THREE.Mesh(new THREE.CylinderGeometry(.02, .02, len, 8), new THREE.MeshBasicMaterial({ color: 0xff4d4d })); seg.position.set((a.x + b.x) / 2, (a.y + b.y) / 2, 0); seg.rotation.z = Math.atan2(-(b.x - a.x), b.y - a.y); grp.add(seg);
+    }
+    d3.cy = (r.yt + r.yb) / 2; d3.dist = r.crowd ? 9.5 : 13; d3.dirty = false;
+  },
+  render3D(env, t, dt) {
+    const d3 = env.d3; if (!d3) return; const div = env.ui.stage2, w = div.clientWidth, h = div.clientHeight; if (w < 10 || h < 10) return;
+    if (d3.w !== w || d3.h !== h) { d3.R.setSize(w, h, false); d3.cam.aspect = w / h; d3.cam.updateProjectionMatrix(); d3.w = w; d3.h = h; }
+    if (d3.dirty) SIMS.peri.rebuild(env); if (d3.auto) d3.yaw += (dt || .016) * .25;
+    const cy = d3.cy || 1.5, D = d3.dist || 9.5; d3.cam.position.set(Math.sin(d3.yaw) * Math.cos(d3.pitch) * D, cy + Math.sin(d3.pitch) * D, Math.cos(d3.yaw) * Math.cos(d3.pitch) * D); d3.cam.lookAt(-.5, cy, 0);
+    d3.R.render(d3.sc, d3.cam);
+  },
+  dispose3D(env) { const d3 = env.d3; if (!d3) return; try { d3.R.dispose(); d3.R.domElement.remove(); } catch (e) { } env.d3 = null; }
+};
+
+/* =====================================================================
+   ACT 8  Light following water (total internal reflection)
+   ===================================================================== */
+SIMS.tir = {
+  controls: [
+    { type: 'seg', id: 'mode', label: 'Experiment', val: 'tir', wide: true, opts: [['tir', '🔦 Light at the surface'], ['fibre', '🌐 Optical fibre'], ['jet', '🍼 Laser in a water jet']] },
+    { type: 'seg', id: 'med', label: 'Dense material', val: '1.33', opts: [['1.33', 'Water 1.33'], ['1.5', 'Glass 1.5'], ['2.42', 'Diamond 2.42']], when: P => P.mode === 'tir' },
+    { type: 'range', id: 'th', label: 'Angle of incidence inside the material', min: 0, max: 89, step: 1, val: 30, unit: '°', when: P => P.mode === 'tir' },
+    { type: 'btn', label: 'Go to the critical angle', when: P => P.mode === 'tir', fn: e => e.set('th', Math.round(Math.asin(1 / +e.P.med) * R2D * 10) / 10) },
+    { type: 'range', id: 'fa', label: 'Angle at which light enters the fibre', min: -30, max: 30, step: 1, val: 12, unit: '°', when: P => P.mode === 'fibre' },
+    { type: 'range', id: 'n1', label: 'Core refractive index', min: 1.46, max: 1.7, step: .01, val: 1.5, dec: 2, when: P => P.mode === 'fibre' },
+    { type: 'range', id: 'n2', label: 'Cladding refractive index', min: 1.3, max: 1.49, step: .01, val: 1.46, dec: 2, when: P => P.mode === 'fibre' },
+    { type: 'range', id: 'hw', label: 'Water level in the bottle', min: 3.2, max: 20, step: .1, val: 14, unit: ' cm', when: P => P.mode === 'jet' },
+    { type: 'check', id: 'laser', label: 'Laser ON', val: true, when: P => P.mode === 'jet' },
+    { type: 'btn', label: '💧 Let the bottle drain', when: P => P.mode === 'jet', fn: e => { if (e.P.hw < 4) e.set('hw', 14); e.S.drain = true; } }
+  ],
+  init(env) { env.S.drain = false; },
+  onChange(env, id, v) { if (id === 'n1' && env.P.n2 >= v) env.set('n2', Math.round((v - .02) * 100) / 100); if (id === 'n2' && v >= env.P.n1) env.set('n1', Math.round((v + .02) * 100) / 100); },
+  fibre(P) {
+    const n1 = P.n1, n2 = P.n2, a = P.fa * D2R, sb = Math.sin(a) / n1, beta = Math.asin(clamp(sb, -1, 1)), tc = Math.asin(n2 / n1), accept = Math.asin(Math.min(1, Math.sqrt(n1 * n1 - n2 * n2)));
+    return { n1, n2, beta, tc, accept, inc: Math.PI / 2 - Math.abs(beta), ok: Math.PI / 2 - Math.abs(beta) >= tc - 1e-9 };
+  },
+  jet(P) { const h = Math.max(0, P.hw - 3), R = 2 * h, r = .2, s = Math.sqrt(2 * R * r + r * r), th = h > .1 ? Math.acos(s / (R + r)) * R2D : 0; return { h, th, tc: Math.asin(1 / N_W) * R2D }; },
+  readouts(env) {
+    const P = env.P;
+    if (P.mode === 'tir') {
+      const n = +P.med, tc = Math.asin(1 / n) * R2D, s = n * Math.sin(P.th * D2R), tir = s >= 1, th2 = tir ? null : Math.asin(s) * R2D;
+      return [['Critical angle', fix(tc, 1) + '°'], ['Incident ∠', P.th + '°'], [tir ? 'Refracted' : 'Refracted ∠', tir ? 'none: total internal reflection' : fix(th2, 1) + '°', tir ? 'ok' : ''], ['Light reflected', Math.round(fresnelR(n, 1, P.th * D2R) * 100) + '%']];
+    }
+    if (P.mode === 'fibre') { const f = SIMS.tir.fibre(P); return [['Critical angle at wall', fix(f.tc * R2D, 1) + '°'], ['Max entry angle', '±' + fix(f.accept * R2D, 1) + '°'], ['Light', f.ok ? 'trapped inside ✓' : 'leaks out ✗', f.ok ? 'ok' : 'bad']]; }
+    const j = SIMS.tir.jet(P); return [['Water above hole', fix(j.h) + ' cm'], ['Jet range', j.h > .2 ? fix(2 * Math.sqrt(j.h * 12)) + ' cm' : 'no jet'], ['Light in jet', !P.laser ? 'laser off' : j.th > j.tc ? 'trapped by TIR ✓' : 'leaks', j.th > j.tc && P.laser ? 'ok' : '']];
+  },
+  draw(env, t, dt) {
+    const { g, W, H, P } = env;
+    if (P.mode === 'tir') return SIMS.tir.drawTIR(env);
+    if (P.mode === 'fibre') return SIMS.tir.drawFibre(env);
+    SIMS.tir.drawJet(env, dt || .016);
+  },
+  drawTIR(env) {
+    const { g, W, H, P } = env, n = +P.med, P0 = { x: W * .5, y: H * .5 }, th = P.th * D2R, L = Math.min(W, H) * .42, tc = Math.asin(1 / n);
+    g.fillStyle = '#060b1a'; g.fillRect(0, 0, W, H / 2); g.fillStyle = n < 1.4 ? 'rgba(40,130,200,.45)' : n < 2 ? 'rgba(120,200,180,.35)' : 'rgba(170,170,255,.4)'; g.fillRect(0, H / 2, W, H / 2);
+    line(g, 0, H / 2, W, H / 2, '#bfeaff', 2.5); text(g, 'Air (n = 1)', 12, H / 2 - 12, '#9db0d6', 14); text(g, ({ '1.33': 'Water', '1.5': 'Glass', '2.42': 'Diamond' })[P.med] + ' (n = ' + n + ')', 12, H / 2 + 26, '#cfe3ff', 14);
+    line(g, P0.x, P0.y - L, P0.x, P0.y + L, '#fff', 1.4, [6, 5], .7); text(g, 'normal', P0.x + 6, P0.y - L + 12, '#fff', 12);
+    line(g, P0.x, P0.y, P0.x - Math.sin(tc) * L * -1, P0.y + Math.cos(tc) * L, '#ffb703', 1.5, [3, 6], .0);
+    line(g, P0.x, P0.y, P0.x + Math.sin(tc) * L * .9, P0.y + Math.cos(tc) * L * .9, '#ffb703', 1.8, [5, 6], .85); text(g, 'critical angle ' + fix(tc * R2D, 1) + '°', P0.x + Math.sin(tc) * L * .9 + 8, P0.y + Math.cos(tc) * L * .9 + 4, '#ffb703', 12);
+    const d = { x: Math.sin(th), y: -Math.cos(th) }, src = { x: P0.x - d.x * L, y: P0.y - d.y * L }, R = fresnelR(n, 1, th), s = n * Math.sin(th), tir = s >= 1;
+    glow(g, src.x, src.y, P0.x, P0.y, '#ff4d4d', 3.4, 1);
+    glow(g, P0.x, P0.y, P0.x + d.x * L, P0.y - d.y * L, '#ff4d4d', 3.4, tir ? 1 : Math.max(.12, R));
+    if (!tir) { const t2 = Math.asin(s), e = { x: Math.sin(t2), y: -Math.cos(t2) }; glow(g, P0.x, P0.y, P0.x + e.x * L, P0.y + e.y * L, '#ff4d4d', 3.4, Math.max(.2, 1 - R)); angleArc(g, P0.x, P0.y, 70, -Math.PI / 2, Math.atan2(e.y, e.x), '#4de3d0', 't'); }
+    angleArc(g, P0.x, P0.y, 48, Math.PI / 2, Math.atan2(-d.y, -d.x), '#ffd23d', 'i ' + P.th + '°');
+    if (tir) text(g, 'TOTAL INTERNAL REFLECTION: all the light stays inside', W / 2, 34, '#5ee79a', 17, 'center', 600);
+    else text(g, 'Some light escapes. The refracted ray bends away from the normal.', W / 2, 34, '#9db0d6', 15, 'center', 500);
+  },
+  drawFibre(env) {
+    const { g, W, H, P } = env, f = SIMS.tir.fibre(P), yc = H / 2, a = H * .11, cl = H * .05, x0 = W * .08, x1 = W * .94;
+    gridBg(g, W, H, 40); g.fillStyle = 'rgba(70,90,170,.55)'; g.fillRect(x0, yc - a - cl, x1 - x0, cl); g.fillRect(x0, yc + a, x1 - x0, cl); g.fillStyle = 'rgba(120,200,255,.25)'; g.fillRect(x0, yc - a, x1 - x0, 2 * a);
+    g.strokeStyle = '#8fb4ff'; g.lineWidth = 2; g.strokeRect(x0, yc - a - cl, x1 - x0, 2 * a + 2 * cl); line(g, x0, yc - a, x1, yc - a, '#8fb4ff', 1.5); line(g, x0, yc + a, x1, yc + a, '#8fb4ff', 1.5);
+    text(g, 'Cladding (n₂ = ' + fix(P.n2, 2) + ')', x0 + 8, yc - a - cl - 8, '#9db0d6', 13); text(g, 'Core (n₁ = ' + fix(P.n1, 2) + ')', x0 + 8, yc + 5, '#cfe3ff', 13);
+    const al = P.fa * D2R, ext = 90; glow(g, x0 - ext * Math.cos(al), yc - ext * Math.sin(al), x0, yc, '#ff4d4d', 3.2);
+    const pts = [{ x: x0, y: yc }]; let x = x0, y = yc, dir = f.beta >= 0 ? 1 : -1, tb = Math.tan(Math.abs(f.beta)), lost = null, bounces = 0;
+    if (tb < 1e-4) pts.push({ x: x1, y: yc });
+    else for (let k = 0; k < 60 && x < x1; k++) {
+      const dy = dir > 0 ? (yc + a - y) : (y - (yc - a)), dx = dy / tb; if (x + dx >= x1) { pts.push({ x: x1, y: y + dir * (x1 - x) * tb }); break; }
+      x += dx; y = dir > 0 ? yc + a : yc - a; pts.push({ x, y });
+      if (!f.ok) { lost = { x, y, dir }; break; } bounces++; dir = -dir;
+    }
+    for (let i = 0; i < pts.length - 1; i++) glow(g, pts[i].x, pts[i].y, pts[i + 1].x, pts[i + 1].y, '#ff4d4d', 3);
+    if (lost) { const ti = Math.asin(clamp(P.n1 * Math.sin(f.inc) / P.n2, 0, 1)), vx = Math.cos(Math.PI / 2 - ti), vy = Math.sin(Math.PI / 2 - ti) * lost.dir; glow(g, lost.x, lost.y, lost.x + vx * 120, lost.y + vy * 120, '#ff4d4d', 2.5, .5); text(g, 'light leaks out', lost.x + 10, lost.y + lost.dir * 36, '#ff6b7a', 14, 'left', 600); }
+    else if (pts.length > 1) { const tot = pts.reduce((s, p, i) => i ? s + Math.hypot(p.x - pts[i - 1].x, p.y - pts[i - 1].y) : 0, 0); for (let k = 0; k < 4; k++) { let d = ((env.t * 140 + k * tot / 4) % tot), q = pts[pts.length - 1]; for (let i = 1; i < pts.length; i++) { const sl = Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y); if (d <= sl) { const u = d / sl; q = { x: lerp(pts[i - 1].x, pts[i].x, u), y: lerp(pts[i - 1].y, pts[i].y, u) }; break; } d -= sl; } dot(g, q.x, q.y, 6, '#fff'); } text(g, bounces + ' total internal reflection' + (bounces === 1 ? '' : 's') + ': data is travelling!', W / 2, H - 22, '#5ee79a', 15, 'center', 600); }
+    text(g, 'Entry angle ' + P.fa + '° (max ±' + fix(f.accept * R2D, 0) + '°).  Not to scale: real fibres are thinner than a hair.', 12, 22, '#9db0d6', 13);
+  },
+  drawJet(env, dt) {
+    const { g, W, H, P, S } = env, ppc = H * .5 / 22, bx0 = W * .14, bx1 = W * .28, bb = H * .66, holeY = bb - 3 * ppc, tubY = H * .86;
+    if (S.drain) { const nv = P.hw - dt * 1.4; if (nv <= 3.2) { S.drain = false; env.set('hw', 3.2); } else env.set('hw', nv); }
+    g.fillStyle = '#0a1128'; g.fillRect(0, 0, W, H); g.fillStyle = '#1a2547'; g.fillRect(0, tubY + 10, W, H);
+    // tub
+    const tx0 = bx1 + 18 * ppc * .8; g.fillStyle = 'rgba(190,210,255,.2)'; g.fillRect(tx0, tubY - 22, W * .96 - tx0, 32); g.fillStyle = 'rgba(60,150,230,.55)'; g.fillRect(tx0 + 3, tubY - 12, W * .96 - tx0 - 6, 22); g.strokeStyle = '#8fb4ff'; g.lineWidth = 2; g.strokeRect(tx0, tubY - 22, W * .96 - tx0, 32);
+    // bottle
+    const top = bb - 22 * ppc, wy = bb - P.hw * ppc;
+    g.fillStyle = 'rgba(60,150,230,.5)'; g.fillRect(bx0, wy, bx1 - bx0, bb - wy); g.strokeStyle = '#cfe8ff'; g.lineWidth = 3; g.beginPath(); g.moveTo(bx0, top + 20); g.lineTo(bx0, bb); g.lineTo(bx1, bb); g.lineTo(bx1, top + 20); g.lineTo(bx1 - 10, top); g.lineTo(bx0 + 10, top); g.closePath(); g.stroke();
+    const j = SIMS.tir.jet(P), h = j.h; const Dv = (tubY - 12 - holeY) / ppc; const xl = h > .2 ? 2 * Math.sqrt(h * Dv) : 0;
+    if (P.laser) { const lx = bx0 - 60; rr(g, lx - 40, holeY - 8, 40, 16, 4); g.fillStyle = '#3b4468'; g.fill(); g.strokeStyle = '#8fa3d8'; g.stroke(); glow(g, lx, holeY, bx1, holeY, '#ff4d4d', 3, wy < holeY ? 1 : .6); text(g, 'laser', lx - 20, holeY - 16, '#9db0d6', 12, 'center'); }
+    dot(g, bx1, holeY, 3, '#fff');
+    if (h > .2) {
+      const pts = []; for (let q = 0; q <= 40; q++) { const xc = xl * q / 40; pts.push({ x: bx1 + xc * ppc, y: holeY + xc * xc / (4 * h) * ppc }); }
+      g.save(); g.lineCap = 'round'; g.lineJoin = 'round'; g.strokeStyle = 'rgba(120,200,255,.45)'; g.lineWidth = 9; g.beginPath(); pts.forEach((p, i) => i ? g.lineTo(p.x, p.y) : g.moveTo(p.x, p.y)); g.stroke();
+      if (P.laser) { g.shadowColor = '#ff4d4d'; g.shadowBlur = 16; g.strokeStyle = '#ff6b6b'; g.lineWidth = 4; g.beginPath(); pts.forEach((p, i) => i ? g.lineTo(p.x, p.y) : g.moveTo(p.x, p.y)); g.stroke(); g.shadowBlur = 0; g.strokeStyle = '#fff'; g.lineWidth = 1.5; g.stroke(); }
+      g.restore();
+      for (let k = 0; k < 6; k++) { const q = ((env.t * .9 + k / 6) % 1), p = pts[Math.min(40, Math.floor(q * 40))]; dot(g, p.x, p.y, 3, 'rgba(255,255,255,.8)'); }
+      const end = pts[40]; if (P.laser) { const gr = g.createRadialGradient(end.x, end.y, 1, end.x, end.y, 34); gr.addColorStop(0, 'rgba(255,120,120,.95)'); gr.addColorStop(1, 'rgba(255,60,60,0)'); g.fillStyle = gr; g.fillRect(end.x - 36, end.y - 36, 72, 72); }
+      text(g, 'light follows the bending water', bx1 + 20, holeY - 30, '#cfe3ff', 13);
+    }
+    text(g, 'Water-bottle experiment', 12, 22, '#9db0d6', 13);
+  }
+};
+/* =====================================================================
+   CONTENT  |  one entry per PDF concept
+   ===================================================================== */
+const ACTS = [
+  {
+    id: 'lateral', n: 1, c: '#ff4d4d', icon: '🚑', sim: 'lateral', min: 9,
+    title: 'Mirror Writing and Lateral Inversion', hindiTitle: 'दर्पण लेखन और पार्श्व उलटाव',
+    pdf: '1. Mirror Writing & Lateral Inversion', simType: '2D canvas mirror lab',
+    pdfReal: 'Car rear-view mirror, ambulance, mobile selfie camera (NIKE T-shirt)',
+    line: 'Why is AMBULANCE written backwards, and why does your selfie flip the T-shirt?',
+    objective: 'Find out how a plane mirror swaps left and right, and where the image forms.',
+    explain: 'A plane mirror shows things at their true depth, but the image is flipped sideways. This is called <b>lateral inversion</b>. The image forms as far behind the mirror as the object is in front of it.',
+    real: ['<b>Rear-view mirror:</b> AMBULANCE is printed backwards on the front, so the driver ahead reads it correctly in the mirror.', '<b>Selfie camera:</b> the word NIKE on your T-shirt looks reversed in the preview, because the front camera works like a mirror.'],
+    steps: [
+      { t: 'Open the ambulance scene. Read the word in the mirror. Is it correct?', act: e => e.set('scene', 'rear') },
+      { t: 'Switch on “Write the word laterally inverted”. Now read the image.', act: e => { e.set('axis', 'v'); e.set('inv', true); } },
+      { t: 'Change to a floor or water mirror. Which direction flips now?', act: e => { e.set('inv', false); e.set('axis', 'h'); } },
+      { t: 'Back to the wall mirror. Move the object and compare the two distances.', act: e => { e.set('axis', 'v'); e.set('dist', 4.2); } }
+    ],
+    observe: ['In a wall mirror, left and right swap. In a floor mirror, top and bottom swap.', 'The image distance always equals the object distance.', 'Only writing that was already flipped reads correctly in the mirror.'],
+    challenge: 'Type your own name and make it read correctly in the wall mirror.',
+    why: 'Every point of the object reflects light by the law of reflection, so the image point lies at the same distance behind the mirror. A mirror reverses the front-to-back direction. When you turn to face a wall mirror, that looks like a left-to-right swap.',
+    formula: ['Image distance = object distance'],
+    accuracy: '<b>Accurate:</b> equal distances and a virtual, upright, same-size image. <b>Simplified:</b> a mirror really flips front-to-back; the lab shows the sideways result you see in everyday life.',
+    tip: 'Let students hold a printed word up to a real mirror before starting the activity.',
+    predict: { q: 'You hold a card reading RACE in front of a wall mirror. What do you see in the mirror?', opts: ['RACE, exactly the same', 'Left and right swapped', 'RACE upside down', 'Nothing'], ans: 1, fb: 'A wall mirror swaps left and right (lateral inversion). That is why R looks turned around.', test: e => { e.set('scene', 'free'); e.set('text', 'RACE'); e.set('inv', false); e.set('axis', 'v'); } },
+    quiz: { q: 'Why is AMBULANCE written backwards on the front of the vehicle?', opts: ['To save paint', 'So the driver ahead can read it correctly in the rear-view mirror', 'Mirrors make letters bigger', 'It is a printing mistake'], ans: 1, fb: 'The mirror flips the writing again, so backwards writing becomes readable.' },
+    take: 'A plane mirror flips left and right. The image is virtual, upright, the same size, and as far behind the mirror as the object is in front.',
+    terms: ['lateral inversion', 'virtual image', 'plane mirror'],
+    hi: {
+      explain: 'समतल दर्पण वस्तु को सही गहराई पर दिखाता है, पर बाएँ-दाएँ को बदल देता है। इसे पार्श्व उलटाव कहते हैं। प्रतिबिंब दर्पण के पीछे उतनी ही दूरी पर बनता है जितनी दूरी पर वस्तु आगे रखी है।',
+      real: 'रियर-व्यू मिरर: एम्बुलेंस पर शब्द उल्टे लिखे होते हैं ताकि आगे वाली गाड़ी के शीशे में वे सीधे पढ़े जा सकें। सेल्फी कैमरा: फ्रंट कैमरा आईने जैसा काम करता है, इसलिए टी-शर्ट पर लिखा NIKE उल्टा दिखता है।',
+      why: 'वस्तु का हर बिंदु परावर्तन के नियम से दर्पण से टकराकर लौटता है, इसलिए प्रतिबिंब दर्पण के पीछे उतनी ही दूरी पर बनता है।',
+      take: 'समतल दर्पण बाएँ-दाएँ को पलट देता है। प्रतिबिंब आभासी, सीधा और बराबर आकार का होता है।', pq: 'आप दीवार के दर्पण के सामने RACE लिखा कार्ड रखते हैं। दर्पण में क्या दिखेगा?', qq: 'एम्बुलेंस के आगे AMBULANCE उल्टा क्यों लिखा होता है?'
+    }
+  },
+  {
+    id: 'water', n: 2, c: '#ff8a3d', icon: '🪙', sim: 'water', min: 9,
+    title: 'The Appearing Coin', hindiTitle: 'पानी डालते ही सिक्के का ऊपर उठना',
+    pdf: '2. The Appearing Coin', simType: '2D ray-refraction lab (Snell’s law, n = 1.33)',
+    pdfReal: 'Swimming-pool depth illusion (drowning hazard), spear-fishing',
+    line: 'A pool looks about 25% shallower than it really is. A coin appears when you pour water.',
+    objective: 'See how refraction lifts objects in water and makes water look shallower.',
+    explain: 'Light bends when it passes from water into air. Your eye follows the bent ray straight back, so the object seems <b>higher</b> than it really is. The floor of a pool looks about 25% shallower.',
+    real: ['<b>Swimming pool:</b> a 6 ft pool looks only 4.5 ft deep. Many people jump in and start to drown.', '<b>Fishing:</b> the fish you see is higher than the real fish. Fishers aim slightly below the fish they see.'],
+    steps: [
+      { t: 'Coin mode: the coin is hidden behind the basin wall. Pour water slowly.', act: e => { e.set('mode', 'coin'); e.set('water', 0); } },
+      { t: 'Stop when the coin just appears. Read the water level.', act: e => e.set('water', .7) },
+      { t: 'Pool mode: press “Look straight down” and compare real and apparent depth.', act: e => { e.set('mode', 'pool'); e.set('ex', e.P.xo); } },
+      { t: 'Spear fishing: throw the spear at the fish image, then at the real fish.', act: e => e.set('mode', 'fish') }
+    ],
+    observe: ['The coin rises into view as the water gets deeper.', 'Looking straight down, apparent depth is about 75% of real depth (1 ÷ 1.33).', 'The ray bends away from the normal when it leaves water.'],
+    challenge: 'Hit the fish with the spear. Where did you have to aim compared with the fish you see?',
+    why: 'Light goes from a dense medium (water, n = 1.33) to a rarer one (air, n = 1). It bends away from the normal. The brain extends the ray you see in a straight line, so the object seems raised. Apparent depth = real depth ÷ 1.33.',
+    formula: ['n₁ sin θ₁ = n₂ sin θ₂', 'apparent depth = real depth ÷ n'],
+    accuracy: '<b>Accurate:</b> the ray angles come from Snell’s law and the image position is calculated with the real geometry. <b>Simplified:</b> the water surface is drawn calm, and the ripples are only for looks.',
+    tip: 'Do the real coin-and-cup demo first, then run this simulation to explain what you saw.',
+    predict: { q: 'A pool looks 4.5 ft deep from the edge. Its real depth is closest to:', opts: ['3 ft', '4.5 ft', '6 ft', '9 ft'], ans: 2, fb: 'Real depth ≈ apparent depth × 1.33, so 4.5 × 1.33 ≈ 6 ft.', test: e => { e.set('mode', 'pool'); e.set('D', 6); e.set('ex', e.P.xo); } },
+    quiz: { q: 'You spear a fish from the bank. Where should you aim?', opts: ['At the fish you see', 'Slightly below where the fish appears', 'Above the fish', 'Far to the left'], ans: 1, fb: 'The image is raised, so the real fish is lower than it looks.' },
+    take: 'Water looks shallower than it is. Real depth is about 33% more than apparent depth, so never trust how deep water looks.',
+    terms: ['refraction', 'apparent depth', 'refractive index'],
+    hi: {
+      explain: 'पानी में रखी चीज़ अपनी असली जगह से ऊपर उठी दिखती है, क्योंकि प्रकाश का अपवर्तन होता है। पूल की गहराई लगभग 25% कम दिखाई देती है।',
+      real: 'स्विमिंग पूल का फर्श उथला दिखता है, इसलिए लोग कूदकर डूबने लगते हैं। मछुआरे भाले से मछली मारते समय दिखती मछली से थोड़ा नीचे निशाना लगाते हैं।',
+      why: 'पानी से हवा में आते समय प्रकाश अभिलंब से दूर मुड़ता है। आँख मुड़ी किरण को सीधा पीछे बढ़ाकर देखती है, इसलिए वस्तु ऊपर दिखती है। आभासी गहराई = असली गहराई ÷ 1.33।',
+      take: 'पानी की असली गहराई दिखने वाली गहराई से लगभग 33% ज़्यादा होती है।', pq: 'पूल किनारे से 4.5 फीट गहरा दिखता है। असली गहराई लगभग कितनी है?', qq: 'किनारे से मछली को भाला मारना हो तो कहाँ निशाना लगाएँगे?'
+    }
+  },
+  {
+    id: 'contrast', n: 3, c: '#ffd23d', icon: '📱', sim: 'contrast', min: 9,
+    title: 'Simultaneous Contrast', hindiTitle: 'सिमल्टेनियस कंट्रास्ट (दो ग्रे स्केयर)',
+    pdf: '3. Simultaneous Contrast', simType: '2D canvas perception lab',
+    pdfReal: 'Phone dark mode and screen brightness in sunlight; camouflage of soldiers and cheetahs',
+    line: 'The same phone looks dazzling in a dark room and dull in sunlight.',
+    objective: 'Learn that your eyes judge brightness by comparing it with the surroundings.',
+    explain: 'Your eyes do not measure brightness alone. They compare it with the <b>background</b>. The same grey looks lighter on a dark background and darker on a light one. This is <b>simultaneous contrast</b>.',
+    real: ['<b>Phone screen:</b> bright in a dark room, but dark and dull in strong sunlight at the same brightness setting.', '<b>Camouflage:</b> soldiers and leopards match their background so the contrast with the surroundings almost disappears.'],
+    steps: [
+      { t: 'Phone mode: compare the two phones. Both use the same brightness setting.', act: e => { e.set('view', 'phone'); e.set('bright', 50); } },
+      { t: 'Turn the brightness to maximum. Does the sunlight phone become easy to read?', act: e => e.set('bright', 100) },
+      { t: 'Patch mode: decide which square is lighter. Then join them with the grey strip.', act: e => { e.set('view', 'patch'); e.set('bridge', false); } },
+      { t: 'Camouflage mode: change the ground brightness until the leopard is hard to see.', act: e => { e.set('view', 'camo'); e.set('tone', 150); } }
+    ],
+    observe: ['The two squares have identical grey values, but look different.', 'In sunlight the contrast ratio of the screen drops a lot.', 'A spotted coat on a patchy ground is much harder to see.'],
+    challenge: 'Find the ground brightness at which the leopard is hardest to spot.',
+    why: 'Your visual system works with <b>differences</b> (contrast). In sunlight, reflected light adds the same amount to black and white pixels, and your eyes also adapt to the bright surroundings, so the screen looks dull. Camouflage works by removing contrast with the background.',
+    formula: ['contrast ratio = (white + reflected) ÷ (black + reflected)'],
+    accuracy: '<b>Accurate:</b> the contrast-ratio idea and real reflection arithmetic. <b>Simplified:</b> the brain’s response is a smooth curve, and the camouflage score is a teaching model, not a measurement.',
+    tip: 'Ask students to cover the background with their fingers to prove the squares are equal.',
+    predict: { q: 'The same grey square is placed on a dark background and on a light background. Which looks lighter?', opts: ['The one on the dark background', 'The one on the light background', 'Both look the same', 'Neither'], ans: 0, fb: 'Against a dark surround, a grey looks lighter. Your eyes compare with the background.', test: e => { e.set('view', 'patch'); e.set('grey', 128); e.set('bgA', 30); e.set('bgB', 225); e.set('bridge', false); } },
+    quiz: { q: 'Why is a phone screen hard to read in bright sunlight?', opts: ['The phone gets hotter', 'Reflected sunlight lifts black and white pixels equally, so contrast drops', 'The screen shrinks', 'Phones switch off their light'], ans: 1, fb: 'Contrast is the difference between bright and dark, and sunlight reduces that difference.' },
+    take: 'We see contrast, not brightness. Change the surroundings and the same shade looks different.',
+    terms: ['contrast', 'adaptation', 'camouflage'],
+    hi: {
+      explain: 'हमारी आँख किसी चीज़ की चमक आसपास की चमक से तुलना करके आँकती है। इसे समकालिक कंट्रास्ट कहते हैं। वही ग्रे रंग गहरी पृष्ठभूमि पर हल्का और हल्की पृष्ठभूमि पर गहरा दिखता है।',
+      real: 'अंधेरे कमरे में फोन की स्क्रीन बहुत चमकती है, पर कड़ी धूप में वही स्क्रीन काली और धुंधली लगती है। चीते और सैनिक आसपास से मेल खाने के लिए कैमोफ्लेज पैटर्न का इस्तेमाल करते हैं।',
+      why: 'धूप स्क्रीन से टकराकर काले और सफेद दोनों पिक्सल में रोशनी जोड़ देती है, इसलिए अंतर कम हो जाता है। आँख भी तेज़ रोशनी के हिसाब से ढल जाती है।',
+      take: 'हम चमक नहीं, चमक का अंतर (कंट्रास्ट) देखते हैं।', pq: 'वही ग्रे चौकोर गहरी और हल्की पृष्ठभूमि पर रखा है। कौन-सा हल्का दिखेगा?', qq: 'तेज़ धूप में फोन की स्क्रीन पढ़ना कठिन क्यों हो जाता है?'
+    }
+  },
+  {
+    id: 'mirror', n: 4, c: '#7be04a', icon: '🥄', sim: 'mirror', min: 9,
+    title: 'The Spoon Face', hindiTitle: 'चम्मच का अंदर और बाहर',
+    pdf: '4. The Spoon Face', simType: '2D ray-diagram lab (mirror formula)',
+    pdfReal: 'Concave: dentist mirror, car headlight. Convex: metro platform mirror, ATM safety mirror',
+    line: 'One spoon is a concave and a convex mirror at the same time.',
+    objective: 'Compare how concave and convex mirrors form images, using ray diagrams.',
+    explain: 'The inside of a spoon is a <b>concave</b> mirror: it magnifies when you are close, and flips your face when you are far. The back is a <b>convex</b> mirror: it always shows a smaller, upright image over a wide area.',
+    real: ['<b>Concave:</b> dentist’s mirror (magnified tooth), car headlight reflector.', '<b>Convex:</b> big round mirror on a metro platform, safety mirror above an ATM.'],
+    steps: [
+      { t: 'Concave side, object beyond C. Note the image: real and inverted.', act: e => { e.set('kind', 'concave'); e.set('f', 8); e.set('u', 22); } },
+      { t: 'Move the object to F. What happens to the reflected rays?', act: e => e.set('u', e.P.f) },
+      { t: 'Move the object inside F, very close, like a dentist mirror. Look at the face preview.', act: e => e.set('u', 4) },
+      { t: 'Switch to the convex side. Try several distances.', act: e => { e.set('kind', 'convex'); e.set('u', 18); } }
+    ],
+    observe: ['Beyond F the concave image is real and upside down.', 'Inside F the image becomes upright and magnified.', 'A convex mirror always gives an upright, smaller image behind the mirror.'],
+    challenge: 'Find the object distance at which the concave image is the same size as the object.',
+    why: 'A concave mirror brings parallel rays together at the focus F. A convex mirror spreads them out, so the reflected rays seem to come from a point behind the mirror. The mirror formula links the distances: 1/v + 1/u = 1/f.',
+    formula: ['1/v + 1/u = 1/f', 'm = −v/u', 'f = R/2'],
+    accuracy: '<b>Accurate:</b> real mirror formula with the Cartesian sign convention and the three standard rays. <b>Simplified:</b> small aperture (paraxial) mirrors only; real spoons blur the image.',
+    tip: 'Hand out real steel spoons and let students find the distance where their face flips.',
+    predict: { q: 'You bring the inside of a spoon very close to your eye (inside the focal length). Your face looks:', opts: ['Upside down and small', 'Upright and magnified', 'Upright and tiny', 'Invisible'], ans: 1, fb: 'Inside F, a concave mirror makes a virtual, upright, magnified image. A dentist mirror works this way.', test: e => { e.set('kind', 'concave'); e.set('f', 8); e.set('u', 4); } },
+    quiz: { q: 'Which mirror gives a wide, upright but smaller view, as on metro platforms and above ATMs?', opts: ['Plane', 'Concave', 'Convex', 'Cylindrical'], ans: 2, fb: 'A convex mirror always forms a smaller upright image and covers a large field of view.' },
+    take: 'Concave mirrors converge light and can magnify. Convex mirrors spread light and give a wide, safe view.',
+    terms: ['focal length', 'real and virtual image', 'magnification'],
+    hi: {
+      explain: 'चम्मच का अंदरूनी भाग अवतल दर्पण है और बाहरी भाग उत्तल दर्पण। अवतल दर्पण पास की चीज़ को बड़ा दिखाता है। उत्तल दर्पण हमेशा सीधा और छोटा प्रतिबिंब बनाता है।',
+      real: 'अवतल: डेंटिस्ट का शीशा और गाड़ी की हेडलाइट। उत्तल: मेट्रो प्लेटफॉर्म का गोल शीशा और ATM के ऊपर लगा सेफ्टी मिरर।',
+      why: 'अवतल दर्पण किरणों को फोकस पर इकट्ठा करता है। उत्तल दर्पण किरणों को फैला देता है, इसलिए बड़ा क्षेत्र छोटे शीशे में दिखता है। सूत्र: 1/v + 1/u = 1/f।',
+      take: 'अवतल दर्पण बड़ा कर सकता है। उत्तल दर्पण चौड़ा और सुरक्षित दृश्य देता है।', pq: 'चम्मच का अंदरूनी भाग आँख के बहुत पास लाने पर चेहरा कैसा दिखेगा?', qq: 'मेट्रो प्लेटफॉर्म और ATM पर कौन-सा दर्पण लगता है?'
+    }
+  },
+  {
+    id: 'reflect', n: 5, c: '#2fd6b0', icon: '🎱', sim: 'reflect', min: 9,
+    title: 'Ribbon and Beam Tracing', hindiTitle: 'रिबन और बीम ट्रेसिंग (∠i = ∠r)',
+    pdf: 'The Ribbon & Beam Tracing', simType: '2D canvas: torch, plane-mirror image and bank-shot table',
+    pdfReal: 'Bank shot (cut shot) in carrom, billiards and snooker',
+    line: 'A snooker player is secretly doing physics: the ball leaves at the same angle it arrives.',
+    objective: 'Verify the law of reflection and see where a plane mirror forms an image.',
+    explain: 'When light hits a mirror, the angle of incidence equals the angle of reflection: <b>∠i = ∠r</b>, both measured from the normal. A plane mirror forms an image as far behind as the object is in front: <b>d<sub>o</sub> = d<sub>i</sub></b>.',
+    real: ['<b>Carrom, billiards, snooker:</b> the bank (cut) shot sends the striker off a cushion at the same angle it arrived.', '<b>Plane mirror:</b> your image stands as far behind the glass as you stand in front.'],
+    steps: [
+      { t: 'Law mode: set the incident angle to 40°. Read ∠r.', act: e => { e.set('mode', 'law'); e.set('ai', 40); e.set('tilt', 0); } },
+      { t: 'Tilt the mirror by 10°. By how much does the reflected ray turn?', act: e => e.set('tilt', 10) },
+      { t: 'Image mode: move the candle. Compare d_o and d_i.', act: e => { e.set('mode', 'image'); e.set('do', 5); } },
+      { t: 'Bank-shot mode: press “Auto-aim”, then “Shoot”.', act: e => e.set('mode', 'bank') }
+    ],
+    observe: ['∠i and ∠r are always equal, measured from the normal.', 'Tilting the mirror by θ turns the reflected ray by 2θ.', 'The image seems to be exactly as far behind the mirror as the candle is in front.'],
+    challenge: 'Score a bank shot without using Auto-aim, then check your angle with the mirror trick.',
+    why: 'The mirror pushes light back along the normal direction but does not change its motion along the surface. That makes the two angles equal. The mirror trick: the cushion acts like a mirror, so aim straight at the target’s reflected image.',
+    formula: ['∠i = ∠r', 'd_o = d_i', 'turn of ray = 2 × turn of mirror'],
+    accuracy: '<b>Accurate:</b> the reflection is computed with the vector law of reflection. <b>Simplified:</b> the bank-shot ball has no spin or friction, so the result is the ideal geometric one.',
+    tip: 'Compare the cushion with the mirror line, and the ball path with the light ray, on the board.',
+    predict: { q: 'A torch beam hits a mirror at 30° to the normal. At what angle to the normal does it leave?', opts: ['15°', '30°', '60°', '90°'], ans: 1, fb: '∠r = ∠i, so the beam leaves at 30° on the other side of the normal.', test: e => { e.set('mode', 'law'); e.set('ai', 30); e.set('tilt', 0); } },
+    quiz: { q: 'A candle is 2 m in front of a plane mirror. How far behind the mirror is its image?', opts: ['1 m', '2 m', '4 m', 'It depends on the eye'], ans: 1, fb: 'In a plane mirror d_i = d_o, so the image is 2 m behind it (4 m from the candle).' },
+    take: 'Reflection always obeys ∠i = ∠r, and a plane mirror puts the image as far behind as the object is in front.',
+    terms: ['normal', 'angle of incidence', 'angle of reflection'],
+    hi: {
+      explain: 'प्रकाश दर्पण से इस तरह लौटता है कि आपतन कोण और परावर्तन कोण बराबर होते हैं (∠i = ∠r)। समतल दर्पण में प्रतिबिंब उतनी ही दूरी पर दिखता है (d_o = d_i)।',
+      real: 'कैरम या स्नूकर में किनारे (cushion) से टकराकर गोटी उसी कोण पर लौटती है। इसे बैंक शॉट या कट शॉट कहते हैं।',
+      why: 'दर्पण प्रकाश की दिशा का केवल अभिलंब वाला भाग उलटता है, सतह के साथ वाला भाग वैसा ही रहता है। इसी से दोनों कोण बराबर होते हैं।',
+      take: '∠i = ∠r हमेशा सही है। समतल दर्पण में प्रतिबिंब उतना ही पीछे दिखता है जितनी दूर वस्तु है।', pq: 'टॉर्च की किरण अभिलंब से 30° पर दर्पण पर पड़ती है। वह किस कोण पर लौटेगी?', qq: 'मोमबत्ती समतल दर्पण से 2 m आगे है। प्रतिबिंब दर्पण के कितना पीछे बनेगा?'
+    }
+  },
+  {
+    id: 'maze', n: 6, c: '#38b6ff', icon: '🎯', sim: 'maze', min: 9,
+    title: 'Light Maze', hindiTitle: 'दो शीशों से लाइट को बाधा के पार टारगेट पर मारना',
+    pdf: 'ACT 4: Live Experiment Arena (Light Maze)', simType: '2D ray-tracing puzzle with rotatable and draggable mirrors',
+    pdfReal: 'LASIK eye surgery and the modern military tank gunner',
+    line: 'Steer a laser around walls using only mirrors, like a surgeon or a tank gunner.',
+    objective: 'Use the law of reflection to steer a laser beam past obstacles onto a target.',
+    explain: 'A straight beam cannot go around a wall, but <b>mirrors can turn it</b>. Each mirror obeys the law of reflection. Turning a mirror by a small angle swings the beam by twice that angle, so aiming is very precise.',
+    real: ['<b>LASIK eye surgery:</b> small mirrors steer the laser onto the exact spot on the eye without touching it.', '<b>Tank gunner’s sight:</b> mirrors and laser beams bring the target into line without exposing the crew.'],
+    steps: [
+      { t: 'Level 1: the wall blocks the target. Turn on the hint, then set both mirrors to −45°.', act: e => { e.set('level', 0); e.set('hint', true); } },
+      { t: 'Level 2: pass through the narrow keyhole. Use small angle steps.', act: e => { e.set('level', 1); e.set('hint', false); } },
+      { t: 'Level 3: drag the mirrors, then rotate them. Up, across, then down.', act: e => e.set('level', 2) },
+      { t: 'Turn the hint on if you are stuck, and compare your angles with the green lines.', act: e => e.set('hint', true) }
+    ],
+    observe: ['A tiny turn of the mirror moves the beam twice as far in angle.', 'The beam always leaves a mirror at the same angle it arrived.', 'More mirrors let you go around more obstacles.'],
+    challenge: 'Complete all three levels. Count how many mirror reflections you used.',
+    why: 'At each mirror the beam direction is reflected about the mirror’s normal, so the exit direction depends only on the mirror angle. Because the reflected ray turns by 2θ when the mirror turns by θ, a small, accurate mirror motion aims a laser very precisely.',
+    formula: ['∠i = ∠r at every mirror', 'beam turns by 2θ when mirror turns by θ'],
+    accuracy: '<b>Accurate:</b> the beam path is traced with the vector reflection law. <b>Simplified:</b> the beam has no width, and the mirrors are perfect.',
+    tip: 'Let pairs work together: one rotates, one watches the beam and calls the angle.',
+    predict: { q: 'The laser stays fixed. If a mirror turns by 10°, the reflected beam turns by:', opts: ['5°', '10°', '20°', '0°'], ans: 2, fb: 'The reflected ray turns by twice the mirror’s turn: 2 × 10° = 20°.', test: e => { e.set('level', 1); e.say('Turn the mirror by 5° with the buttons and watch the beam move about 10°'); } },
+    quiz: { q: 'Why do surgeons and tank gunners steer a laser with mirrors?', opts: ['Mirrors make light faster', 'A small mirror turn moves the beam precisely without moving the laser', 'Mirrors make lasers brighter', 'Lasers cannot go straight'], ans: 1, fb: 'Mirrors let you aim a beam around obstacles with tiny, accurate movements.' },
+    take: 'Mirrors steer light by the law of reflection. Turn a mirror by θ and the beam turns by 2θ.',
+    terms: ['reflection', 'steering a beam', 'laser'],
+    hi: {
+      explain: 'सीधी किरण दीवार के पार नहीं जा सकती, पर दर्पण उसे मोड़ सकते हैं। हर दर्पण परावर्तन का नियम मानता है। दर्पण को थोड़ा घुमाने पर किरण दुगना घूमती है।',
+      real: 'LASIK आँख की सर्जरी में छोटे शीशों से लेज़र को सही जगह पहुँचाया जाता है। टैंक के गनर के सिस्टम में भी शीशे और लेज़र से निशाना साधा जाता है।',
+      why: 'दर्पण θ घूमे तो परावर्तित किरण 2θ घूमती है, इसलिए छोटी सी घुमाई से भी किरण सटीक निशाने पर पहुँचती है।',
+      take: 'दर्पण θ घुमाओ तो किरण 2θ घूमती है।', pq: 'लेज़र स्थिर है और दर्पण 10° घूमता है। परावर्तित किरण कितना घूमेगी?', qq: 'सर्जन और टैंक गनर लेज़र को दर्पण से क्यों मोड़ते हैं?'
+    }
+  },
+  {
+    id: 'peri', n: 7, c: '#7a7cff', icon: '🔭', sim: 'peri', min: 9,
+    title: 'Mission: See Around the Corner', hindiTitle: 'मिशन: कोने के पार देखना (पेरिस्कोप)',
+    pdf: 'ACT 5: Mission: See Around the Corner (Periscope)', simType: '2D ray diagram plus a 3D Three.js periscope',
+    pdfReal: 'Submarine (50 m deep, pipe 1 m above water) and seeing over the crowd at a VIP concert or cricket match',
+    line: 'A cardboard tube and two mirrors let you see over a crowd, or over the ocean.',
+    objective: 'Build a periscope from two parallel 45° mirrors and see why it works.',
+    explain: 'A periscope has two parallel mirrors tilted at <b>45°</b>. The top mirror turns light down the tube, and the bottom mirror turns it again into your eye. You can see over obstacles while staying low or hidden.',
+    real: ['<b>Submarine:</b> the sub hides about 50 m deep, while its periscope pipe rises about 1 m above the water to watch ships.', '<b>Concert or cricket crowd:</b> a cardboard periscope lets you see the stage over tall people without jumping.'],
+    steps: [
+      { t: 'Crowd scene: make the tube very short. Can you see the stage?', act: e => { e.set('scene', 'crowd'); e.set('Lc', .3); e.set('m1', 45); e.set('m2', 45); } },
+      { t: 'Lengthen the tube until the top window is above the crowd.', act: e => e.set('Lc', .9) },
+      { t: 'Tilt the top mirror away from 45°. Watch the light miss the lower mirror.', act: e => e.set('m1', 52) },
+      { t: 'Submarine: raise the pipe above sea level and set both mirrors to 45°.', act: e => { e.set('scene', 'sub'); e.set('Ls', 4); e.set('m1', 45); e.set('m2', 45); } }
+    ],
+    observe: ['The top window must be higher than the obstacle.', 'Only mirrors at (about) 45° send the light into the eye.', 'Light leaves the periscope parallel to how it entered.'],
+    challenge: 'What is the shortest tube length that lets you see the stage over a 1.9 m crowd?',
+    why: 'Each mirror turns a horizontal ray by 90° when it is set at 45°. Two parallel mirrors make two 90° turns, so the light leaves parallel to the way it came in, and the image stays upright.',
+    formula: ['two mirrors at 45° → total turn 180° → exit parallel to entry'],
+    accuracy: '<b>Accurate:</b> every ray in 2D and 3D is calculated with the reflection law. <b>Simplified:</b> a single ray is shown, the submarine pipe is not to scale (a real sub may be 50 m deep).',
+    tip: 'Build a cardboard periscope with two small mirrors after this activity.',
+    predict: { q: 'Light enters a periscope horizontally. Both mirrors are parallel at 45°. The light leaves:', opts: ['Vertically downwards', 'Horizontally, parallel to the entering light', 'Back along its own path', 'It is absorbed'], ans: 1, fb: 'Two 90° turns add up to a 180° turn, so the exit ray runs parallel to the entry ray.', test: e => { e.set('m1', 45); e.set('m2', 45); } },
+    quiz: { q: 'How can a submarine watch ships while staying deep underwater?', opts: ['Its hull is transparent', 'A periscope uses two mirrors to bring light down a tube from above the water', 'Sonar is a camera', 'Light travels faster in water'], ans: 1, fb: 'Mirrors at the top and bottom of the periscope carry the light down to the crew.' },
+    take: 'Two parallel mirrors at 45° bend light twice, so you can see around or over obstacles.',
+    terms: ['periscope', '45° mirror', 'upright image'],
+    hi: {
+      explain: 'पेरिस्कोप में दो समानांतर दर्पण 45° पर लगे होते हैं। ऊपर का दर्पण प्रकाश को नीचे भेजता है और नीचे का दर्पण उसे आँख तक पहुँचाता है। इससे आप बाधा के ऊपर से देख सकते हैं।',
+      real: 'पनडुब्बी समुद्र में लगभग 50 मीटर नीचे छिपी रहती है, पर पेरिस्कोप पाइप पानी से करीब 1 मीटर ऊपर निकलकर दुश्मन के जहाज़ देख लेता है। भीड़ में कार्डबोर्ड पेरिस्कोप से मंच साफ़ दिखता है।',
+      why: '45° का दर्पण क्षैतिज किरण को 90° मोड़ता है। दो समानांतर दर्पण मिलकर किरण को इस तरह मोड़ते हैं कि बाहर निकलने वाली किरण आने वाली किरण के समानांतर रहती है।',
+      take: '45° पर लगे दो समानांतर दर्पण किरण को दो बार मोड़ते हैं, इसलिए हम कोने के पार देख पाते हैं।', pq: 'दोनों दर्पण 45° पर समानांतर हैं। क्षैतिज किरण बाहर किस दिशा में निकलेगी?', qq: 'पनडुब्बी गहरे पानी में रहकर जहाज़ कैसे देखती है?'
+    }
+  },
+  {
+    id: 'tir', n: 8, c: '#c15bff', icon: '🌐', sim: 'tir', min: 9,
+    title: 'Light Following Water', hindiTitle: 'पानी के साथ चलती रोशनी (पूर्ण आंतरिक परावर्तन)',
+    pdf: '1. Light Following Water (Total Internal Reflection - TIR)', simType: '2D ray lab: critical angle, optical fibre, water jet',
+    pdfReal: 'High-speed fibre-optic internet (JioFiber, Airtel Xstream), endoscopy, undersea cables, laser in a bottle',
+    line: 'The video you are watching probably travelled as light bouncing inside a glass thread.',
+    objective: 'Find the critical angle and see how total internal reflection traps light.',
+    explain: 'When light goes from a <b>denser</b> material (water, glass) to a <b>rarer</b> one (air) at a large enough angle, none of it escapes. All of it reflects back inside. This is <b>total internal reflection (TIR)</b>.',
+    real: ['<b>Optical fibre internet:</b> undersea glass threads carry light by TIR, not electric current. A video can cross oceans in under a second.', '<b>Endoscopy and the bottle-laser trick:</b> light follows the thin glass or the curved water jet.'],
+    steps: [
+      { t: 'Surface mode: raise the incident angle slowly from 0°. Watch the refracted ray.', act: e => { e.set('mode', 'tir'); e.set('med', '1.33'); e.set('th', 20); } },
+      { t: 'Press “Go to the critical angle”. The refracted ray skims the surface.', act: e => e.set('th', 48.8) },
+      { t: 'Optical fibre: keep the entry angle small so the light stays trapped. Then increase it.', act: e => { e.set('mode', 'fibre'); e.set('fa', 10); } },
+      { t: 'Water jet: switch the laser on and let the bottle drain. The light follows the curve.', act: e => { e.set('mode', 'jet'); e.set('laser', true); } }
+    ],
+    observe: ['Below the critical angle, some light escapes and some reflects.', 'Beyond it, 100% of the light reflects.', 'In the fibre, light zig-zags along the core without leaking.'],
+    challenge: 'Find the largest entry angle at which the fibre still traps the light.',
+    why: 'Going from a denser to a rarer medium, light bends away from the normal. At the critical angle the refracted ray runs along the surface. Beyond it, Snell’s law has no solution, so all the light reflects. A fibre has a core of higher index than its cladding, so light is trapped.',
+    formula: ['sin θc = n₂ ÷ n₁', 'TIR if θ > θc and light goes dense → rare'],
+    accuracy: '<b>Accurate:</b> critical angle, Snell’s law and Fresnel reflectance (the ray brightness). <b>Simplified:</b> the fibre is drawn thick and in 2D; the jet is a model of a parabolic stream.',
+    tip: 'Do the real laser-and-bottle demo in a dim room, then use the simulation to explain it.',
+    predict: { q: 'Light inside water hits the surface at 60°. The critical angle of water is about 49°. What happens?', opts: ['All light escapes', 'Half escapes, half reflects', 'All light reflects back (TIR)', 'The light stops'], ans: 2, fb: '60° is larger than 49°, so total internal reflection happens.', test: e => { e.set('mode', 'tir'); e.set('med', '1.33'); e.set('th', 60); } },
+    quiz: { q: 'Why does light stay inside an optical fibre?', opts: ['A copper wire inside carries it', 'Total internal reflection at the core and cladding boundary', 'Magnets guide it', 'The fibre is a mirror tube'], ans: 1, fb: 'The core has a higher refractive index than the cladding, and the light hits the wall beyond the critical angle.' },
+    take: 'TIR needs two things: light going from dense to rare, and an angle larger than the critical angle. It powers fibre internet.',
+    terms: ['critical angle', 'total internal reflection', 'optical fibre'],
+    hi: {
+      explain: 'जब प्रकाश सघन माध्यम (पानी, काँच) से विरल माध्यम (हवा) में क्रांतिक कोण से बड़े कोण पर पहुँचता है, तो वह पूरी तरह वापस लौट जाता है। इसे पूर्ण आंतरिक परावर्तन (TIR) कहते हैं।',
+      real: 'ऑप्टिकल फाइबर इंटरनेट (JioFiber, Airtel Xstream) में रोशनी काँच की पतली तार के अंदर टकरा-टकराकर चलती है। एंडोस्कोपी में भी यही तकनीक है। पानी की धार में लेज़र भी इसी तरह मुड़ती है।',
+      why: 'क्रांतिक कोण पर अपवर्तित किरण सतह के साथ चलती है। उससे बड़े कोण पर कोई अपवर्तित किरण नहीं बनती, पूरी रोशनी लौट जाती है। sin θc = n₂/n₁।',
+      take: 'TIR के लिए रोशनी का सघन से विरल माध्यम में जाना और कोण का क्रांतिक कोण से बड़ा होना ज़रूरी है।', pq: 'पानी के अंदर प्रकाश सतह से 60° पर टकराता है। पानी का क्रांतिक कोण लगभग 49° है। क्या होगा?', qq: 'ऑप्टिकल फाइबर में रोशनी बाहर क्यों नहीं निकलती?'
+    }
+  }
+];
+
+const FQ = [
+  { q: 'AMBULANCE is printed backwards on the front of the vehicle because…', o: ['it looks stylish', 'the driver ahead sees it correctly in the rear-view mirror', 'mirrors make writing bigger', 'it saves paint'], a: 1, e: 'A mirror flips writing left to right, so backwards writing reads correctly in it.', act: 0 },
+  { q: 'A pool looks 3 ft deep from the edge. Its real depth is about…', o: ['2.25 ft', '3 ft', '4 ft', '6 ft'], a: 2, e: 'Real depth ≈ apparent × 1.33 = 3 × 1.33 ≈ 4 ft.', act: 1 },
+  { q: 'A fish appears at a certain spot in clear water. For a direct hit, aim…', o: ['at the image', 'slightly below the image', 'above the image', 'to the side'], a: 1, e: 'Refraction raises the image, so the real fish is deeper.', act: 1 },
+  { q: 'The same grey patch looks lighter on a dark background. This effect is called…', o: ['total internal reflection', 'simultaneous contrast', 'lateral inversion', 'refraction'], a: 1, e: 'Your eyes compare brightness with the surroundings.', act: 2 },
+  { q: 'Which mirror is used on metro platforms and above ATMs for a wide view?', o: ['Plane', 'Concave', 'Convex', 'None'], a: 2, e: 'A convex mirror gives an upright, smaller image over a wide field.', act: 3 },
+  { q: 'A dentist uses a concave mirror held close to the tooth. The image is…', o: ['real and inverted', 'upright and magnified', 'upright and tiny', 'at infinity'], a: 1, e: 'Inside the focal length, a concave mirror makes an upright, magnified image.', act: 3 },
+  { q: 'A carrom striker hits the cushion at 40° to the normal. It leaves at…', o: ['20°', '40°', '50°', '80°'], a: 1, e: '∠r = ∠i = 40°.', act: 4 },
+  { q: 'The laser stays fixed. A mirror turns by 15°. The reflected beam turns by…', o: ['7.5°', '15°', '30°', '45°'], a: 2, e: 'The reflected ray turns by twice the mirror’s turn.', act: 5 },
+  { q: 'A simple periscope has two mirrors that are…', o: ['perpendicular, at 90°', 'parallel, each at 45°', 'curved and concave', 'at 30° each'], a: 1, e: 'Two parallel 45° mirrors turn the light twice, by 90° each time.', act: 6 },
+  { q: 'Total internal reflection can happen when light travels from…', o: ['air to water at any angle', 'water to air beyond the critical angle', 'air to glass at a large angle', 'any medium at 0°'], a: 1, e: 'It needs dense-to-rare travel and an angle larger than the critical angle.', act: 7 }
+];
+/* =====================================================================
+   APP  |  routing, dashboard, activity view, final quiz
+   ===================================================================== */
+let FRAME = null, CUR = null, FINAL = null, lastT = 0, errCount = 0;
+function loop(ts) {
+  requestAnimationFrame(loop); const t = ts / 1000, dt = Math.min(.05, t - lastT); lastT = t;
+  if (FRAME) { try { FRAME(t, dt); } catch (err) { if (errCount++ < 3) console.error(err); } }
+}
+function teardown() { if (CUR) { if (CUR.env) CUR.env.destroy(); if (CUR.ro) CUR.ro.disconnect(); } CUR = null; FRAME = null; }
+function go(h) { if (ONLY) { const m = /^#act-(\d+)$/.exec(h); if (m && +m[1] >= 1 && +m[1] <= 8) location.href = 'act' + m[1] + '.html'; return; } if (location.hash === h) route(); else location.hash = h; }
+function route() {
+  teardown(); window.scrollTo(0, 0); if (ONLY) { renderActivity(ONLY - 1); return; } const h = location.hash;
+  if (h.indexOf('#act-') === 0) renderActivity(parseInt(h.slice(5), 10) - 1);
+  else if (h === '#final') renderFinal(); else renderHome();
+}
+
+/* ---------- prism hero (real Snell’s law through an equilateral prism) ---------- */
+function refractV(d, nrm, n1, n2) {
+  const c = -(d.x * nrm.x + d.y * nrm.y), r = n1 / n2, k = 1 - r * r * (1 - c * c); if (k < 0) return null;
+  const b = r * c - Math.sqrt(k); return { x: r * d.x + b * nrm.x, y: r * d.y + b * nrm.y };
+}
+function startPrism(cv) {
+  const g = cv.getContext('2d'); let W = 0, H = 0, dpr = 1, ey = .45, touched = false;
+  const size = () => { const r = cv.getBoundingClientRect(); dpr = Math.min(window.devicePixelRatio || 1, 2); W = r.width; H = r.height; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); };
+  size(); const ro = new ResizeObserver(size); ro.observe(cv); CUR = { ro };
+  const mv = e => { const r = cv.getBoundingClientRect(); ey = clamp((e.clientY - r.top) / r.height, .1, .9); touched = true; };
+  cv.addEventListener('pointermove', mv); cv.addEventListener('pointerdown', mv);
+  const cols = ['#ff3b3b', '#ff9a2e', '#ffe14d', '#4ade80', '#38b6ff', '#6366f1', '#c15bff'];
+  FRAME = t => {
+    g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H); gridBg(g, W, H, 32);
+    const s = Math.min(W, H) * .6, hh = s * .866, cx = W * .44, cy = H * .5, A = { x: cx, y: cy - hh * 2 / 3 }, B = { x: cx - s / 2, y: cy + hh / 3 }, C = { x: cx + s / 2, y: cy + hh / 3 };
+    if (!touched) ey = .45 + Math.sin(t * .6) * .1;
+    g.beginPath(); g.moveTo(A.x, A.y); g.lineTo(B.x, B.y); g.lineTo(C.x, C.y); g.closePath(); g.fillStyle = 'rgba(150,200,255,.12)'; g.fill(); g.strokeStyle = '#cfe3ff'; g.lineWidth = 2; g.stroke();
+    const y0 = clamp(ey * H, A.y + 14, B.y - 14), tq = (B.y - y0) / (B.y - A.y), P1 = { x: B.x + tq * (A.x - B.x), y: y0 };
+    glow(g, 0, y0, P1.x, P1.y, '#ffffff', 4);
+    g.save(); g.globalCompositeOperation = 'lighter';
+    cols.forEach((c, i) => {
+      const n = 1.49 + i * .012, d1 = refractV({ x: 1, y: 0 }, { x: -.866, y: -.5 }, 1, n); if (!d1) return;
+      const t2 = raySeg(P1, d1, [A.x, A.y, C.x, C.y]); if (t2 == null) return; const P2 = { x: P1.x + d1.x * t2, y: P1.y + d1.y * t2 };
+      const d2 = refractV(d1, { x: -.866, y: .5 }, n, 1); line(g, P1.x, P1.y, P2.x, P2.y, c, 2, [], .55); if (!d2) return;
+      g.strokeStyle = c; g.lineWidth = 3; g.globalAlpha = .95; g.beginPath(); g.moveTo(P2.x, P2.y); g.lineTo(P2.x + d2.x * W, P2.y + d2.y * W); g.stroke();
+    });
+    g.restore();
+  };
+}
+
+/* ---------- dashboard ---------- */
+function renderHome() {
+  const v = $('#view'); v.style.removeProperty('--c');
+  v.innerHTML = `
+  <section class="hero">
+    <div>
+      <h1>Light Lab</h1>
+      <p>Eight hands-on experiments about reflection, refraction and how we see. Each starts with something from daily life: an ambulance, a swimming pool, a spoon, a phone in the sun.</p>
+      <div class="cta"><button class="btn" data-go="#act-1">Start Act 1</button><button class="btn ghost" data-go="#final">Final knowledge check</button></div>
+    </div>
+    <div><canvas id="prism" aria-label="Interactive prism demo: move the pointer to change where the white beam enters"></canvas><div class="prismcap">Move your pointer over the prism. White light splits into the spectrum, and the colours below follow it (dispersion is exaggerated for clarity).</div></div>
+  </section>
+  <h2 style="margin:26px 0 0">Experiment trail</h2>
+  <div class="beam" id="beam"></div>
+  <div class="panelrow">
+    <div class="card"><h2>Suggested 90-minute workshop</h2><table id="agenda"></table></div>
+    <div class="card"><h2>PDF coverage map</h2><div style="overflow:auto;max-height:340px"><table id="cmap"></table></div></div>
+    <div class="card"><h2>How accurate is this lab?</h2>
+      <p style="margin:6px 0"><b>Real equations:</b> law of reflection, Snell’s law, critical angle, Fresnel reflectance, the mirror formula, and vector ray tracing.</p>
+      <p style="margin:6px 0"><b>Teaching models:</b> contrast and camouflage scores, the bank shot (no spin or friction), the water jet and the thick fibre. Each activity says which is which under “Why?”.</p>
+      <p style="margin:6px 0;color:var(--mut)">Progress is saved in this browser only.</p>
+      <button class="btn ghost sm" id="resetProg">Reset all progress</button></div>
+    <div class="card final"><div><h2 style="margin:0">Final knowledge check</h2><p style="margin:4px 0 0;color:var(--mut)">10 questions across all eight activities. ${Store.d.final != null ? 'Your best score: <b>' + Store.d.final + '/10</b>.' : 'Pass mark: 6 out of 10.'}</p></div><button class="btn" data-go="#final" style="--c:#ffd23d">Take the quiz</button></div>
+  </section>`;
+  const beam = $('#beam');
+  ACTS.forEach((a, i) => {
+    const o = Store.get(a.id), pips = [o.visit, o.predict, o.quiz, o.task].map(x => `<i class="${x ? 'on' : ''}"></i>`).join('');
+    const d = el('div', 'st'); d.style.setProperty('--c', a.c); d.tabIndex = 0; d.setAttribute('role', 'link'); d.dataset.go = '#act-' + a.n;
+    d.innerHTML = `<span class="node">${a.n}</span><div><h3>${a.icon} ${a.title}</h3><p>${a.line}</p></div><div class="meta"><div class="pips" title="Visited, predicted, quiz, experiment">${pips}</div><span class="mins">${a.min} min</span></div>`;
+    d.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(d.dataset.go); } });
+    beam.appendChild(d);
+  });
+  let tm = 0; const rows = [['0 to 5 min', 'Welcome and prism demo']]; tm = 5;
+  ACTS.forEach(a => { rows.push([tm + ' to ' + (tm + a.min) + ' min', 'Act ' + a.n + ': ' + a.title]); tm += a.min; });
+  rows.push([tm + ' to ' + (tm + 8) + ' min', 'Final knowledge check']); tm += 8; rows.push([tm + ' to ' + (tm + 5) + ' min', 'Discussion and wrap-up']);
+  $('#agenda').innerHTML = '<tr><th>Time</th><th>Activity</th></tr>' + rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('');
+  $('#cmap').innerHTML = '<tr><th>PDF section</th><th>Activity</th><th>Real-life examples in the PDF</th></tr>' + ACTS.map(a => `<tr><td>${a.pdf}</td><td>Act ${a.n}: ${a.title}<br><span style="color:var(--mut)">${a.simType}</span></td><td>${a.pdfReal}</td></tr>`).join('');
+  $('#resetProg').onclick = () => { if (confirm('Reset all progress on this device?')) { Store.reset(); renderHome(); } };
+  startPrism($('#prism'));
+}
+
+/* ---------- activity page ---------- */
+const TABS = [['mission', '🎯 Mission'], ['predict', '🔮 Predict'], ['why', '💡 Why?'], ['quiz', '❓ Quiz'], ['take', '⭐ Takeaway']];
+function renderActivity(i) {
+  if (!(i >= 0 && i < ACTS.length)) return renderHome();
+  const a = ACTS[i], v = $('#view'), st = Store.get(a.id); v.style.setProperty('--c', a.c);
+  st.visit = 1; if (!st.sb) st.sb = a.steps.map(() => 0); Store.save(); updateProgress();
+  v.innerHTML = `
+  <div class="acthead">
+    <button class="btn ghost sm" data-go="#home">← Dashboard</button>
+    <span class="anum">Act ${a.n} of ${ACTS.length}</span>
+    <h1>${a.icon} ${a.title}</h1>
+    <div class="nav2"><button class="btn ghost sm" data-go="#act-${a.n - 1}" ${i === 0 ? 'disabled' : ''}>← Previous</button><button class="btn sm" data-go="${i === ACTS.length - 1 ? '#final' : '#act-' + (a.n + 1)}">${i === ACTS.length - 1 ? 'Final quiz →' : 'Next →'}</button></div>
+  </div>
+  <div class="lab">
+    <section>
+      <div class="stage" id="stage"><div class="msg" id="msg"></div></div>
+      <div class="stage stage2 hide" id="stage2"></div>
+      <div class="readouts" id="read" aria-live="polite"></div>
+      <div class="controls" id="ctrl"></div>
+    </section>
+    <aside class="guide card"><div class="tabs" role="tablist" id="tabs"></div><div class="tabbody" id="tabbody"></div></aside>
+  </div>`;
+  const ui = { stage: $('#stage'), stage2: $('#stage2'), ctrl: $('#ctrl'), read: $('#read'), msg: $('#msg'), onGoal: () => { Store.mark(a.id, 'task'); drawTabs(); } };
+  const env = mountSim(SIMS[a.sim], ui);
+  CUR = { env, act: a, idx: i, tab: 'mission', q: { predict: { sel: null, done: false, wrong: [] }, quiz: { sel: null, done: false, wrong: [] } } };
+  if (st.predict) CUR.q.predict.done = true; if (st.quiz) CUR.q.quiz.done = true;
+  FRAME = (t, dt) => env.frame(t, dt);
+  drawTabs(); drawTab();
+  $('#tabbody').addEventListener('click', onGuideClick); $('#tabbody').addEventListener('change', onGuideChange);
+}
+function drawTabs() {
+  const a = CUR.act, st = Store.get(a.id), box = $('#tabs'); const done = { mission: st.task, predict: st.predict, quiz: st.quiz, take: st.task && st.predict && st.quiz };
+  box.innerHTML = ''; TABS.forEach(t => { const b = el('button', CUR.tab === t[0] ? 'on' : '', t[1] + (done[t[0]] ? '<span class="dot"></span>' : '')); b.setAttribute('role', 'tab'); b.onclick = () => { CUR.tab = t[0]; drawTabs(); drawTab(); }; box.appendChild(b); });
+}
+function drawTab() {
+  const a = CUR.act, st = Store.get(a.id), body = $('#tabbody'), tab = CUR.tab; let h = '';
+  if (tab === 'mission') {
+    const sb = st.sb;
+    h = `<h4>🎯 Your mission</h4><p>${a.objective}</p>
+    <h4>🌍 Where you meet it</h4><ul>${a.real.map(r => `<li>${r}</li>`).join('')}</ul>${isHi() ? `<div class="hi" lang="hi">${a.hi.real}</div>` : ''}
+    <h4>📘 The idea in simple words</h4>${bi(a.explain, a.hi.explain)}
+    <h4>🧪 Guided experiment <span id="stcount" style="color:var(--mut);font-weight:400"></span></h4>
+    <ol class="steps">${a.steps.map((s, k) => `<li data-k="${k}" class="${sb[k] ? 'done' : ''}"><input type="checkbox" data-chk="${k}" ${sb[k] ? 'checked' : ''} aria-label="Mark step ${k + 1} done"><span>${s.t}</span><button class="btn sm" data-try="${k}">Try it</button></li>`).join('')}</ol>
+    <h4>👀 What to observe</h4><ul>${a.observe.map(o => `<li>${o}</li>`).join('')}</ul>
+    <h4>🏆 Student challenge</h4><p>${a.challenge}</p>`;
+  } else if (tab === 'predict' || tab === 'quiz') h = qHTML(tab);
+  else if (tab === 'why') {
+    h = `<h4>💡 Why does it happen?</h4>${bi(a.why, a.hi.why)}<h4>Key relationships</h4><div>${a.formula.map(f => `<span class="formula">${f}</span>`).join('')}</div>
+    <h4>🔬 Accurate model or simplified?</h4><div class="note">${a.accuracy}</div><h4>🧑‍🏫 Facilitator tip</h4><p>${a.tip}</p>`;
+  } else {
+    const items = [['Visited the lab', st.visit], ['Made a prediction', st.predict], ['Answered the quiz', st.quiz], ['Finished the experiment steps', st.task]];
+    h = `<h4>⭐ Key takeaway</h4><div class="take">${a.take}</div>${isHi() ? `<div class="hi" lang="hi">${a.hi.take}</div>` : ''}
+    <h4>Key words</h4><div>${a.terms.map(t => `<span class="formula">${t}</span>`).join('')}</div>
+    <h4>Your progress in this activity</h4><div class="tick">${items.map(x => `<span>${x[1] ? '✅' : '⬜'}</span><span>${x[0]}</span>`).join('')}</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px"><button class="btn" data-go="${CUR.idx === ACTS.length - 1 ? '#final' : '#act-' + (a.n + 1)}">${CUR.idx === ACTS.length - 1 ? 'Go to the final quiz' : 'Next activity'}</button><button class="btn ghost" data-go="#home">Dashboard</button></div>`;
+  }
+  body.innerHTML = h; body.scrollTop = 0; updateStepCount();
+}
+function updateStepCount() { const a = CUR.act, sb = Store.get(a.id).sb, n = sb.filter(Boolean).length, e = $('#stcount'); if (e) e.textContent = `(${n} of ${a.steps.length} done)`; }
+function qHTML(kind) {
+  const a = CUR.act, q = a[kind], s = CUR.q[kind], hiq = a.hi[kind === 'predict' ? 'pq' : 'qq'], ok = s.done;
+  const opts = q.opts.map((o, k) => { let cls = s.sel === k ? 'sel' : ''; if (ok && k === q.ans) cls = 'right'; if (s.wrong.includes(k)) cls = 'wrong'; return `<button class="opt ${cls}" data-opt="${k}" ${ok || s.wrong.includes(k) ? 'disabled' : ''}><b>${String.fromCharCode(65 + k)}</b> ${o}</button>`; }).join('');
+  let fb = '';
+  if (ok) fb = `<div class="fb ${s.sel === q.ans || kind === 'quiz' || s.sel == null ? 'good' : 'bad'}"><b>${s.sel === q.ans || s.sel == null || kind === 'quiz' ? 'Correct. ' : 'Not quite. '}</b>${q.fb}</div>`;
+  else if (s.wrong.length) fb = `<div class="fb bad"><b>Not quite.</b> Try again. Think about: ${a.terms.join(', ')}.</div>`;
+  const act = ok ? (kind === 'predict' ? '<button class="btn" data-test>🔬 Test it in the lab</button>' : `<button class="btn" data-go="${CUR.idx === ACTS.length - 1 ? '#final' : '#act-' + (a.n + 1)}">Next activity</button>`) : `<button class="btn" data-check ${s.sel == null ? 'disabled' : ''}>Check my answer</button>`;
+  return `<h4>${kind === 'predict' ? '🔮 Predict before you test' : '❓ Quick quiz'}</h4>${bi('<p><b>' + q.q + '</b></p>', hiq ? '<b>' + hiq + '</b>' : '')}<div class="opts" role="radiogroup">${opts}</div>${fb}${act}`;
+}
+function onGuideClick(e) {
+  const a = CUR.act, st = Store.get(a.id), t = e.target.closest('button'); if (!t) return;
+  if (t.dataset.go) return go(t.dataset.go);
+  if (t.dataset.try != null) { const k = +t.dataset.try; a.steps[k].act(CUR.env); st.sb[k] = 1; Store.save(); const li = t.closest('li'); li.classList.add('done'); $('input', li).checked = true; checkAllSteps(); return; }
+  if (t.dataset.opt != null) { const s = CUR.q[CUR.tab]; if (!s.done) { s.sel = +t.dataset.opt; $('#tabbody').innerHTML = qHTML(CUR.tab); } return; }
+  if (t.dataset.check != null) {
+    const kind = CUR.tab, q = a[kind], s = CUR.q[kind];
+    if (kind === 'predict') { s.done = true; Store.mark(a.id, 'predict'); } else if (s.sel === q.ans) { s.done = true; Store.mark(a.id, 'quiz'); } else s.wrong.push(s.sel), s.sel = null;
+    $('#tabbody').innerHTML = qHTML(kind); drawTabs(); return;
+  }
+  if (t.dataset.test != null) { a.predict.test(CUR.env); CUR.env.say('Now watch the experiment and compare with your prediction'); }
+}
+function onGuideChange(e) { const k = e.target.dataset.chk; if (k == null) return; const a = CUR.act, st = Store.get(a.id); st.sb[+k] = e.target.checked ? 1 : 0; Store.save(); e.target.closest('li').classList.toggle('done', e.target.checked); checkAllSteps(); }
+function checkAllSteps() { const a = CUR.act, st = Store.get(a.id); updateStepCount(); if (st.sb.every(Boolean)) { Store.mark(a.id, 'task'); drawTabs(); } }
+
+/* ---------- final quiz ---------- */
+function renderFinal() { FINAL = { i: 0, score: 0, picked: null, missed: [] }; drawFinal(); }
+function drawFinal() {
+  const v = $('#view'); v.style.setProperty('--c', '#ffd23d');
+  if (FINAL.i >= FQ.length) {
+    const s = FINAL.score; if (Store.d.final == null || s > Store.d.final) { Store.d.final = s; Store.save(); updateProgress(); }
+    const msg = s >= 9 ? 'Light master! You are ready to teach this lab.' : s >= 6 ? 'Well done. You passed the knowledge check.' : 'Good try. Revisit the activities below and try again.';
+    v.innerHTML = `<div class="card quizbox"><h2>Your result</h2><div class="score">${s} / ${FQ.length}</div><p>${msg}</p>
+    ${FINAL.missed.length ? '<h4>Review these activities</h4><ul>' + FINAL.missed.map(m => `<li><a href="#act-${ACTS[m.act].n}" style="color:var(--c)">Act ${ACTS[m.act].n}: ${ACTS[m.act].title}</a></li>`).join('') + '</ul>' : '<p>You answered everything correctly.</p>'}
+    <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" id="again">Try again</button><button class="btn ghost" data-go="#home">Back to dashboard</button></div></div>`;
+    $('#again').onclick = renderFinal; return;
+  }
+  const q = FQ[FINAL.i], p = FINAL.picked, ans = p != null;
+  v.innerHTML = `<div class="card quizbox"><div style="color:var(--mut);font-size:.9rem">Question ${FINAL.i + 1} of ${FQ.length} &nbsp; Score ${FINAL.score}</div>
+  <h2>${q.q}</h2><div class="opts">${q.o.map((o, k) => `<button class="opt ${ans ? (k === q.a ? 'right' : (k === p ? 'wrong' : '')) : ''}" data-fo="${k}" ${ans ? 'disabled' : ''}><b>${String.fromCharCode(65 + k)}</b> ${o}</button>`).join('')}</div>
+  ${ans ? `<div class="fb ${p === q.a ? 'good' : 'bad'}"><b>${p === q.a ? 'Correct. ' : 'Not quite. '}</b>${q.e}</div><button class="btn" id="nextq">${FINAL.i === FQ.length - 1 ? 'See my result' : 'Next question'}</button>` : ''}</div>`;
+  $$('[data-fo]').forEach(b => b.onclick = () => { const k = +b.dataset.fo; FINAL.picked = k; if (k === q.a) FINAL.score++; else FINAL.missed.push(q); drawFinal(); });
+  const nx = $('#nextq'); if (nx) nx.onclick = () => { FINAL.i++; FINAL.picked = null; drawFinal(); };
+}
+
+/* ---------- boot ---------- */
+document.addEventListener('click', e => { const t = e.target.closest('[data-go]'); if (t && !t.closest('#tabbody')) { e.preventDefault(); go(t.dataset.go); } });
+function rerenderLang() { if (CUR && CUR.act) drawTab(); else route(); }
+window.addEventListener('hashchange', route);
+$('#logoBtn').onclick = () => go('#home');
+
+$('#presBtn').onclick = () => { Store.d.pres = !Store.d.pres; Store.save(); document.body.classList.toggle('presenter', Store.d.pres); $('#presBtn').setAttribute('aria-pressed', Store.d.pres); };
+Store.load(); document.body.classList.toggle('presenter', !!Store.d.pres); $('#presBtn').setAttribute('aria-pressed', !!Store.d.pres);
+function hideLinks() { $$('[data-go="#home"],[data-go="#final"]').forEach(e => { e.style.display = 'none'; }); }
+new MutationObserver(hideLinks).observe(document.body, { childList: true, subtree: true });
+updateProgress(); route(); hideLinks(); requestAnimationFrame(loop);
+
+</script>
+</body>
+</html>
